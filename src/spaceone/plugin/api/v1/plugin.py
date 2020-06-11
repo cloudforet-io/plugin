@@ -21,8 +21,8 @@ class Plugin(BaseAPI, plugin_pb2_grpc.PluginServicer):
         params, metadata = self.parse_request(request, context)
 
         with self.locator.get_service('PluginService', metadata) as plugin_svc:
-            data = plugin_svc.get_plugin_endpoint(params)
-            return self.locator.get_info('PluginEndpoint', data)
+            endpoint = plugin_svc.get_plugin_endpoint(params)
+            return self.locator.get_info('PluginEndpoint', endpoint)
 
     def notify_failure(self, request, context):
         params, metadata = self.parse_request(request, context)

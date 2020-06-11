@@ -24,6 +24,7 @@ class InstalledPlugin(MongoModel):
                         default=PROVISIONING,
                         choices=(PROVISIONING, ACTIVE, ERROR, RE_PROVISIONING))
     endpoint = StringField(max_length=255)
+    endpoints = ListField(StringField(max_length=255))
     created_at = DateTimeField(auto_now_add=True)
     updated_at = DateTimeField(auto_now_add=True)
 
@@ -33,7 +34,8 @@ class InstalledPlugin(MongoModel):
             'name',
             'updated_at',
             'state',
-            'endpoint'
+            'endpoint',
+            'endpoints'
         ],
         'exact_fields': [
             'domain_id',

@@ -32,8 +32,5 @@ def PluginsInfo(plugin_vo: InstalledPluginRef, total_count):
     return supervisor_pb2.PluginsInfo(results=results, total_count=total_count)
 
 
-def PluginEndpoint(plugin_vo):
-    info = {}
-    info['endpoint'] = plugin_vo.plugin_owner.endpoint
-
-    return plugin_pb2.PluginEndpoint(**info)
+def PluginEndpoint(endpoint):
+    return plugin_pb2.PluginEndpoint(**endpoint)
