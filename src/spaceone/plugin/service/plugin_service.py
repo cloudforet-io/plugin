@@ -49,7 +49,7 @@ class PluginService(BaseService):
         if total_count > 0:
             selected_plugin = self._select_one(installed_plugins)
             _LOGGER.debug(f'[get_plugin_endpoint] selected plugin: {selected_plugin.plugin_owner.endpoint}')
-            return selected_plugin
+            return self._select_endpoint(selected_plugin)
 
         # There is no installed plugin
         # Create or Fail
@@ -60,7 +60,7 @@ class PluginService(BaseService):
             _LOGGER.debug(f'[get_matched_supervisors] selected_supervisor: {selected_supervisor}')
             installed_plugin = self._get_installed_plugin(selected_supervisor, params)
             _LOGGER.debug(f'[get_matched_supervisors] installed_plugin: {installed_plugin}')
-            return installed_plugin
+            return self._select_endpoint(installed_plugin)
 
         raise ERROR_NO_POSSIBLE_SUPERVISOR(params=params)
 
@@ -109,6 +109,15 @@ class PluginService(BaseService):
             installed_plugin_ref = self.plugin_ref_mgr.search_plugin(supervisor_id, plugin_id, version, domain_id)
         return installed_plugin_ref
 
+
+    def _select_endpoint(self, plugin_ref):
+        installed_plugin = plugin_ref.plugin_owner
+        endpoint = installed_plugin.endpoint
+        endpoints = installed_plugin.endpoints
+        if endpoints:
+            _LOGGER.debug(f'[_select_endpoint] {endpoints}')
+            endpoint = self._select_one(endpoints)
+        return {'endpoint': endpoint}
 
     def _select_one(self, choice_list, algorithm="random"):
         if algorithm == "random":

@@ -167,6 +167,13 @@ class PluginManager(BaseManager):
                                             version=version)
         return plugin_vo.update({'state':state, 'endpoint':endpoint})
 
+    def update_plugin_endpoints(self, plugin_id, version, supervisor_id, endpoints):
+        plugin_vo = self._installed_plugin_model.get(supervisor_id=supervisor_id,
+                                            plugin_id=plugin_id,
+                                            version=version)
+        return plugin_vo.update({'endpoints': endpoints})
+
+
     def make_reprovision(self, supervisor_id,  plugin_id, version):
         def _rollback(old_data: dict):
             plugin_vo.update(old_data)
