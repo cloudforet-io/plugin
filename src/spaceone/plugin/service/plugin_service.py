@@ -90,6 +90,9 @@ class PluginService(BaseService):
             # If not, create it
             _LOGGER.debug(f'[_get_installed_plugin] create new plugin, supervisor_id: {supervisor_id}')
             installed_plugin = self.plugin_mgr.install_plugin(supervisor, plugin_id, version)
+            #print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+            #print("XXXXXXXXX wait until activated XXXXXXXXXX")
+            self.plugin_mgr.wait_until_activated(supervisor_id, plugin_id, version)
 
         installed_plugin_ref = self._get_installed_ref_plugin(supervisor, installed_plugin, params)
         return installed_plugin_ref

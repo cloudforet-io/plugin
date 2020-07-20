@@ -96,6 +96,16 @@ class PluginRefManager(BaseManager):
         is_mine = True
         if supervisor.domain_id != params['domain_id']:
             is_mine = False
+        try:
+            # Check exit first
+            domain_id = params['domain_id']
+            version = params['version']
+            plugin_id = params['plugin_id']
+
+            installed_plugin_ref = self.get(supervisor_id, domain_id, plugin_id, version)
+            return installed_plugin_ref
+        except Exception as e:
+            _LOGGER.debug(f'[install_plugin] create DB')
 
         db_params = params.copy()
         db_params.update({
