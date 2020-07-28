@@ -1,6 +1,4 @@
 PROTO = {
-    'v1': {
-        'supervisor': ['Supervisor'],
-        'plugin': ['Plugin']
-    }
+    'spaceone.plugin.api.v1.supervisor': ['Supervisor'],
+    'spaceone.plugin.api.v1.plugin': ['Plugin']
 }
