@@ -143,7 +143,7 @@ class SupervisorService(BaseService):
 
 
     @transaction
-    @check_required(['supervisor_id', 'domain_id', 'only'])
+    @check_required(['supervisor_id', 'domain_id'])
     def get(self, params):
         """ Get PluginManager
 
