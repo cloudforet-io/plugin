@@ -14,7 +14,8 @@ def PluginInfo(plugin_vo: InstalledPluginRef, minimal=False):
         'plugin_id': plugin_vo.plugin_id,
         'version': plugin_vo.version,
         'state': plugin_vo.plugin_owner.state,
-        'endpoint': plugin_vo.plugin_owner.endpoint
+        'endpoint': plugin_vo.plugin_owner.endpoint,
+        'endpoints': change_list_value_type(plugin_vo.plugin_owner.endpoints)
     }
     if not minimal:
         info.update({
