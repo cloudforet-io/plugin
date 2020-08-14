@@ -45,7 +45,12 @@ class InstalledPluginRef(MongoModel):
         },
         'ordering': ['plugin_id'],
         'indexes': [
-            'plugin_id'
+            'plugin_id',
+            'version',
+            'supervisor',
+            'plugin_owner',
+            'supervisor_id',
+            'domain_id'
         ]
     }
 
