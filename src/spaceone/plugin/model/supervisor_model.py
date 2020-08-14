@@ -46,6 +46,11 @@ class Supervisor(MongoModel):
         'ordering': ['name'],
         'indexes': [
             'supervisor_id',
-            'name'
+            'name',
+            'hostname',
+            'domain_id',
+            'state',
+            'is_public',
+            'labels'
         ]
     }
