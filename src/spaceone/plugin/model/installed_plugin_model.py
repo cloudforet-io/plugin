@@ -38,8 +38,11 @@ class InstalledPlugin(MongoModel):
             'endpoints'
         ],
         'exact_fields': [
-            'domain_id',
             'plugin_id',
+            'domain_id',
+            'name',
+            'image',
+            'version',
             'state',
             'endpoint'
         ],
@@ -60,8 +63,10 @@ class InstalledPlugin(MongoModel):
             'supervisor_id',
             'supervisor',
             'domain_id',
-            'version'
-
+            'name',
+            'image',
+            'version',
+            'state'
         ]
     }
 

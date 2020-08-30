@@ -24,6 +24,7 @@ class InstalledPluginRef(MongoModel):
             'managed'
         ],
         'exact_fields': [
+            'supervisor_id',
             'domain_id',
             'plugin_id',
             'version'
