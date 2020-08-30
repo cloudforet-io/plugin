@@ -92,7 +92,7 @@ class PluginService(BaseService):
             installed_plugin = self.plugin_mgr.install_plugin(supervisor, plugin_id, version)
             #print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             #print("XXXXXXXXX wait until activated XXXXXXXXXX")
-            self.plugin_mgr.wait_until_activated(supervisor_id, plugin_id, version)
+            #self.plugin_mgr.wait_until_activated(supervisor_id, plugin_id, version)
 
         installed_plugin_ref = self._get_installed_ref_plugin(supervisor, installed_plugin, params)
         return installed_plugin_ref
@@ -107,122 +107,46 @@ class PluginService(BaseService):
         if installed_plugin_ref == None:
             _LOGGER.debug(f'[_get_installed_ref_plugin] need to create installed_plugin_ref')
             installed_plugin_ref = self.plugin_ref_mgr.install_plugin(supervisor, installed_plugin, params)
-            _LOGGER.debug(f'[_get_installed_plugin] wait until ACTIVATED, {installed_plugin_ref}')
-            self.plugin_mgr.wait_until_activated(supervisor_id, plugin_id, version)
+            #_LOGGER.debug(f'[_get_installed_plugin] wait until ACTIVATED, {installed_plugin_ref}')
+            #self.plugin_mgr.wait_until_activated(supervisor_id, plugin_id, version)
             installed_plugin_ref = self.plugin_ref_mgr.search_plugin(supervisor_id, plugin_id, version, domain_id)
         return installed_plugin_ref
 
 
     def _select_endpoint(self, plugin_ref):
+        """ Select one of plugins, then return endpoint
+        """
         installed_plugin = plugin_ref.plugin_owner
         endpoint = installed_plugin.endpoint
         endpoints = installed_plugin.endpoints
         if endpoints:
             _LOGGER.debug(f'[_select_endpoint] {endpoints}')
             endpoint = self._select_one(endpoints)
+        # plugin state = ACTIVE | PROVISIONING
+        state = installed_plugin.state
+        if state == 'ACTIVE':
+            pass
+        elif state == 'PROVISIONING' or state == 'RE_PROVISIONING':
+            self.plugin_mgr.wait_until_activated(installed_plugin.supervisor_id,
+                                                 installed_plugin.plugin_id,
+                                                 installed_plugin.version)
+        else:
+            _LOGGER.error(f'[_select_endpoint] notify failure, {installed_plugin}')
+            params = {'plugin_id': installed_plugin.plugin_id,
+                      'version': installed_plugin.version,
+                      'supervisor_id': installed_plugin.supervisor_id,
+                      'domain_id': installed_plugin.domain_id}
+            self.notify_failure(params)
+            raise ERROR_INSTALL_PLUGIN_TIMEOUT(supervisor_id=installed_plugin.supervisor_id,
+                                               plugin_id=installed_plugin.plugin_id,
+                                               version=installed_plugin.version)
+
         return {'endpoint': endpoint}
 
     def _select_one(self, choice_list, algorithm="random"):
         if algorithm == "random":
             return random.choice(choice_list)
         _LOGGER.error(f'[_select_one] unimplemented algorithm: {algorithm}')
-
-#        # Find or create my supervisor
-#        reference = False
-#        matched_supvr = self.supervisor_mgr.get_matched_supervisor(self.domain_id, labels)
-#        # TODO: if None, there is no matched supervisor
-#        _LOGGER.debug(f'[get_plugin_endpoint] matched_supvr: {matched_supvr}')
-#        if matched_supvr == None:
-#            # find public supervisor
-#            reference = True
-#            public_matched_supvr = self.supervisor_mgr.get_public_supervisor(labels)
-#            # This means public supervisor exist, but my reference does not exist
-#            if public_matched_supvr:
-#                _LOGGER.debug(f'[get_plugin_endpoint] public_matched_supervisor: {public_matched_supvr.supervisor_id}')
-#                # TODO: label 
-#                matched_supvr = self._create_supervisor_reference(public_matched_supvr, self.domain_id)
-#            else:
-#                # TODO: return value
-#                #raise ERROR_NOT_FOUND(key='supervsior', value=labels)
-#                raise ERROR_NO_POSSIBLE_SUPERVISOR(params=params)
-#                return False
-#
-#        # In here, we have matched supervisor or supervisor_ref
-#        _LOGGER.debug(f'[get_plugin_endpoint] matched supervisor: {matched_supvr} (ref:{reference})')
-#        if reference:
-#            # Get plugin. if no install plugin
-#            try:
-#                installed_plugin: InstalledPlugin = self.plugin_ref_mgr.get(
-#                                                        supervisor_id=matched_supvr.supervisor_id,
-#                                                        domain_id=self.domain_id,
-#                                                        plugin_id=plugin_id, 
-#                                                        version=version)
-#            except ERROR_NOT_FOUND:
-#                installed_plugin = None
-#        else:
-#            try:
-#                installed_plugin: InstalledPlugin = self.plugin_mgr.get(
-#                                                        supervisor_id=matched_supvr.supervisor_id,
-#                                                        domain_id=self.domain_id,
-#                                                        plugin_id=plugin_id, 
-#                                                        version=version)
-#            except ERROR_NOT_FOUND:
-#                installed_plugin = None
-#
-#        if installed_plugin:
-#            # return endpoint
-#            return installed_plugin
-#
-#        # If we are here, there is no plugin installed
-#        param_create = {
-#            'domain_id': self.domain_id,
-#            'plugin_id': plugin_id,
-#            'version': version,
-#            'supervisor': matched_supvr
-#        }
-#        if reference:
-#            # TODO: there may be no installed_plugin at supervisor
-#            # get public_supervisor
-#            # get installed_plugins
-#            # if there is no installed plugin, install it first
-#            if public_matched_supvr:
-#                p_domain_id = public_matched_supvr.domain_id
-#                p_supervisor_id = public_matched_supvr.supervisor_id
-#                (tf, p_plugin) = self.plugin_mgr.exist(p_supervisor_id,
-#                                                        p_domain_id,
-#                                                        plugin_id,
-#                                                        version)
-#                if tf == False:
-#                    # Public Installed Plugin does not exist
-#                    # Install It
-#                    p_create = {
-#                        'domain_id': p_domain_id,
-#                        'plugin_id': plugin_id,
-#                        'version': version,
-#                        'supervisor': public_matched_supvr
-#                        }
-#                    p_installed_plugin = self.plugin_mgr.create(p_create)
-#                    # Wait until Active
-#                    p_installed_plugin = self.plugin_mgr.wait_until_activated(plugin_id, 
-#                                                                        version,
-#                                                                        public_matched_supvr.supervisor_id)
-# 
-#
-#            # create plugin, return installed_plugin
-#            installed_plugin: InstalledPlugin = self.plugin_ref_mgr.create(param_create)
-#            installed_plugin: InstalledPlugin = self.plugin_ref_mgr.get(
-#                                                    supervisor_id=matched_supvr.supervisor_id,
-#                                                    domain_id=self.domain_id,
-#                                                    plugin_id=plugin_id, 
-#                                                    version=version)
-#
-#        else:
-#            installed_plugin: InstalledPlugin = self.plugin_mgr.create(param_create)
-#            # Wait until Active
-#            installed_plugin = self.plugin_mgr.wait_until_activated(plugin_id, 
-#                                                                        version,
-#                                                                        matched_supvr.supervisor_id)
-#        return installed_plugin
 
     @transaction
     @check_required(['plugin_id', 'version', 'supervisor_id', 'domain_id'])
@@ -282,10 +206,3 @@ class PluginService(BaseService):
 
         return self.plugin_mgr.call_verify_plugin(plugin_endpoint, options, secret_data)
 
-#    def _create_supervisor_reference(self, supvr, domain_id):
-#        params = {
-#            'supervisor_id': supvr.supervisor_id,
-#            'domain_id': domain_id,
-#            'supervisor': supvr
-#        }
-#        return self.supervisor_ref_mgr.create(params)

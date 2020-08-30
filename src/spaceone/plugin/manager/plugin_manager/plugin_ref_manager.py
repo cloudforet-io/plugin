@@ -61,21 +61,22 @@ class PluginRefManager(BaseManager):
         _LOGGER.debug(f'[list] query: {result}')
         return result
 
-    def search_plugin(self, supervisor_id, plugin_id, version, domain_id, state='ACTIVE'):
+    #def search_plugin(self, supervisor_id, plugin_id, version, domain_id, state='ACTIVE'):
+    def search_plugin(self, supervisor_id, plugin_id, version, domain_id):
         """ Get installed_plugin
         """
         try:
             # Warning DONOT USE get, state is reference
             # Warning, state query is not working, check late
-            search_plugin_param = _make_search_plugin_param(supervisor_id, plugin_id, version, domain_id, state)
+            search_plugin_param = _make_search_plugin_param(supervisor_id, plugin_id, version, domain_id)
             plugins, total_count = self.list(search_plugin_param)
             if total_count == 1:
                 print(f"XXXXX Plugin.state = {plugins[0].plugin_owner.state}")
                 return plugins[0]
-            _LOGGER.debug(f'[search_plugin] not found {supervisor_id}, {plugin_id}, {version}, {state}')
+            _LOGGER.debug(f'[search_plugin] not found {supervisor_id}, {plugin_id}, {version}, {domain_id}')
             return None
         except Exception as e:
-            _LOGGER.debug(f'[search_plugin] not found {supervisor_id}, {plugin_id}, {version}, {state}, {e}')
+            _LOGGER.debug(f'[search_plugin] not found {supervisor_id}, {plugin_id}, {version}, {domain_id}, {e}')
             return None
 
 
@@ -85,7 +86,7 @@ class PluginRefManager(BaseManager):
         Args:
             supervisor: supervisor_vo
             params (dict): {
-                'pluing_id': 'str',
+                'plugin_id': 'str',
                 'version': 'str',
                 'labels': 'dict',
                 'domain_id': 'str'
@@ -119,23 +120,13 @@ class PluginRefManager(BaseManager):
 
         return installed_plugin_ref
 
-def _make_search_plugin_param(supervisor_id, plugin_id, version, domain_id, state):
-#    return {
-#        'filter': [
-#            {'k': 'supervisor_id',  'v': supervisor_id, 'o': 'eq'},
-#            {'k': 'plugin_id',      'v': plugin_id,     'o': 'eq'},
-#            {'k': 'version',        'v': version,       'o': 'eq'},
-#            {'k': 'domain_id',      'v': domain_id,     'o': 'eq'},
-#            {'k': 'plugin_owner.state',          'v': state,         'o': 'eq'}
-#        ]
-#    }
+def _make_search_plugin_param(supervisor_id, plugin_id, version, domain_id):
     return {
         'filter': [
             {'k': 'supervisor_id',  'v': supervisor_id, 'o': 'eq'},
             {'k': 'plugin_id',      'v': plugin_id,     'o': 'eq'},
             {'k': 'version',        'v': version,       'o': 'eq'},
-            {'k': 'domain_id',      'v': domain_id,     'o': 'eq'},
-            {'k': 'state',          'v': state,         'o': 'eq'}
+            {'k': 'domain_id',      'v': domain_id,     'o': 'eq'}
         ]
     }
 
