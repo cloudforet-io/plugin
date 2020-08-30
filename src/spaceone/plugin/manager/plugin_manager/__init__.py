@@ -85,21 +85,22 @@ class PluginManager(BaseManager):
     def list(self, query):
         return self._installed_plugin_model.query(**query)
 
-    def search_plugin(self, supervisor_id, plugin_id, version, domain_id, state='ACTIVE'):
+    #def search_plugin(self, supervisor_id, plugin_id, version, domain_id, state='ACTIVE'):
+    def search_plugin(self, supervisor_id, plugin_id, version, domain_id):
         """ Get installed_plugin
         """
         try:
             # Warning DONOT USE get, state is reference
             # Warning, state query is not working, check late
-            search_plugin_param = _make_search_plugin_param(supervisor_id, plugin_id, version, domain_id, state)
+            search_plugin_param = _make_search_plugin_param(supervisor_id, plugin_id, version, domain_id)
             plugins, total_count = self.list(search_plugin_param)
             if total_count == 1:
                 print(f"XXXXX Plugin.state = {plugins[0].state}")
                 return plugins[0]
-            _LOGGER.debug(f'[search_plugin] not found {supervisor_id}, {plugin_id}, {version}, {state}')
+            _LOGGER.debug(f'[search_plugin] not found {supervisor_id}, {plugin_id}, {version}, {domain_id}')
             return None
         except Exception as e:
-            _LOGGER.debug(f'[search_plugin] not found {supervisor_id}, {plugin_id}, {version}, {state}, {e}')
+            _LOGGER.debug(f'[search_plugin] not found {supervisor_id}, {plugin_id}, {version}, {domain_id}, {e}')
             return None
 
     def _get_installed_plugin(self, supervisor_id, plugin_id, version):
@@ -107,7 +108,6 @@ class PluginManager(BaseManager):
 
     def install_plugin(self, supervisor, plugin_id, version):
         """ Install Plugin based on supervisor info
-        Wait until plugin is installed
 
         Returns: installed_plugin_vo
         """
@@ -121,19 +121,18 @@ class PluginManager(BaseManager):
             'domain_id': supervisor.domain_id
         }
         _LOGGER.debug(f'[install_plugin] create_params: {create_params}')
+        # check exist first,
+        # because plugin may be already exist.
+        try:
+            return self.get(supervisor.supervisor_id, supervisor.domain_id, plugin_id, version)
+        except:
+            # Not exist, create
+            pass
+
         installed_plugin = self.create(create_params)
         self.transaction.add_rollback(_rollback, installed_plugin)
 
         return installed_plugin
-
-#    def install_plugin(self, params):
-#        def _rollback(vo):
-#            vo.delete()
-#
-#        plugin_vo: InstalledPlugin = self._installed_plugin_model.create(params)
-#        self.transaction.add_rollback(_rollback, plugin_vo)
-#
-#        return plugin_vo
 
     def update_plugin(self, params):
         def _rollback(old_data: dict):
@@ -172,7 +171,6 @@ class PluginManager(BaseManager):
                                             plugin_id=plugin_id,
                                             version=version)
         return plugin_vo.update({'endpoints': endpoints})
-
 
     def make_reprovision(self, supervisor_id,  plugin_id, version):
         def _rollback(old_data: dict):
@@ -271,8 +269,7 @@ def _make_search_plugin_param(supervisor_id, plugin_id, version, domain_id, stat
             {'k': 'supervisor_id',  'v': supervisor_id, 'o': 'eq'},
             {'k': 'plugin_id',      'v': plugin_id,     'o': 'eq'},
             {'k': 'version',        'v': version,       'o': 'eq'},
-            {'k': 'domain_id',      'v': domain_id,     'o': 'eq'},
-            {'k': 'state',          'v': state,         'o': 'eq'}
+            {'k': 'domain_id',      'v': domain_id,     'o': 'eq'}
         ]
     }
 
