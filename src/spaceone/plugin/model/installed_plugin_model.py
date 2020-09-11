@@ -12,7 +12,7 @@ __all__ = ['InstalledPlugin']
 
 class InstalledPlugin(MongoModel):
     # TODO: check plugin_id max length
-    plugin_id = StringField(max_length=255, required=True, null=False)
+    plugin_id = StringField(max_length=255, required=True, null=False, unique_with=['version', 'supervisor_id'])
     supervisor_id = StringField(max_length=255, required=True, null=False)
     supervisor = ReferenceField('Supervisor', reverse_delete_rule=CASCADE,  required=True, null=False)
     domain_id = StringField(max_length=40, required=True, null=False)
