@@ -22,7 +22,7 @@ __all__ = [
 
 _LOGGER = logging.getLogger(__name__)
 
-WAIT_TIMEOUT = 60
+WAIT_TIMEOUT = 120
 
 
 class PluginManager(BaseManager):

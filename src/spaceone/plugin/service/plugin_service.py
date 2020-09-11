@@ -4,7 +4,7 @@ import logging
 import random
 
 from spaceone.core.service import *
-from spaceone.plugin.error.supervisor import *
+from spaceone.plugin.error import *
 from spaceone.plugin.manager.plugin_manager import *
 from spaceone.plugin.manager.supervisor_manager import *
 
@@ -23,7 +23,7 @@ class PluginService(BaseService):
         self.plugin_ref_mgr: PluginRefManager = self.locator.get_manager('PluginRefManager')
 
     @transaction
-    @check_required(['plugin_id', 'version', 'labels', 'domain_id'])
+    @check_required(['plugin_id', 'version', 'domain_id'])
     @append_query_filter(filter_keys=['plugin_id', 'version', 'labels', 'domain_id'])
     def get_plugin_endpoint(self, params: dict):
         """ Get plugin_endpoint
@@ -38,7 +38,7 @@ class PluginService(BaseService):
         """
         plugin_id = params['plugin_id']
         version = params['version']
-        labels = params['labels']
+        labels = params.get('labels', {})
         self.domain_id = params['domain_id']
 
         # Find at Plugin Ref Manager
@@ -52,6 +52,9 @@ class PluginService(BaseService):
             return self._select_endpoint(selected_plugin)
 
         # There is no installed plugin
+        # Check plugin_id, version is valid or not
+        self._check_plugin(plugin_id, version, self.domain_id)
+
         # Create or Fail
         matched_supervisors = self.supervisor_mgr.get_matched_supervisors(self.domain_id, labels)
         _LOGGER.debug(f'[get_plugin_endpoint] create new plugin')
@@ -117,17 +120,14 @@ class PluginService(BaseService):
         """ Select one of plugins, then return endpoint
         """
         installed_plugin = plugin_ref.plugin_owner
-        endpoint = installed_plugin.endpoint
-        endpoints = installed_plugin.endpoints
-        if endpoints:
-            _LOGGER.debug(f'[_select_endpoint] {endpoints}')
-            endpoint = self._select_one(endpoints)
         # plugin state = ACTIVE | PROVISIONING
         state = installed_plugin.state
         if state == 'ACTIVE':
             pass
         elif state == 'PROVISIONING' or state == 'RE_PROVISIONING':
-            self.plugin_mgr.wait_until_activated(installed_plugin.supervisor_id,
+            # get up-to-date installed_plugin
+            # ex) installed_plugin.endpoint
+            installed_plugin = self.plugin_mgr.wait_until_activated(installed_plugin.supervisor_id,
                                                  installed_plugin.plugin_id,
                                                  installed_plugin.version)
         else:
@@ -141,12 +141,36 @@ class PluginService(BaseService):
                                                plugin_id=installed_plugin.plugin_id,
                                                version=installed_plugin.version)
 
+        endpoint = installed_plugin.endpoint
+        endpoints = installed_plugin.endpoints
+        if endpoints:
+            _LOGGER.debug(f'[_select_endpoint] {endpoints}')
+            endpoint = self._select_one(endpoints)
+
         return {'endpoint': endpoint}
 
     def _select_one(self, choice_list, algorithm="random"):
         if algorithm == "random":
             return random.choice(choice_list)
         _LOGGER.error(f'[_select_one] unimplemented algorithm: {algorithm}')
+
+    def _check_plugin(self, plugin_id, version, domain_id):
+        """ Check plugin_id:version exist or not
+        """
+        repo_mgr = self.locator.get_manager('RepositoryManager')
+        # Check plugin_id
+        try:
+            repo_mgr.get_plugin(plugin_id, domain_id)
+        except Exception as e:
+            _LOGGER.error(f'[_check_plugin] {plugin_id} does not exist')
+            raise ERROR_PLUGIN_NOT_FOUND(plugin_id=plugin_id)
+
+        # Check version
+        try:
+            repo_mgr.check_plugin_version(plugin_id, version, domain_id)
+        except Exception as e:
+            raise ERROR_INVALID_PLUGIN_VERSION(plugin_id=plugin_id, version=version)
+
 
     @transaction
     @check_required(['plugin_id', 'version', 'supervisor_id', 'domain_id'])
