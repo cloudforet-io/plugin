@@ -120,6 +120,10 @@ class PluginService(BaseService):
         """ Select one of plugins, then return endpoint
         """
         installed_plugin = plugin_ref.plugin_owner
+
+        # Update endpoint_called_at
+        installed_plugin.update_endpoint_called_at()
+
         # plugin state = ACTIVE | PROVISIONING
         state = installed_plugin.state
         if state == 'ACTIVE':

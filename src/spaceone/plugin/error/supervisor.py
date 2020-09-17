@@ -31,5 +31,6 @@ class ERROR_NOT_SUPPORT_LIST_PLUGINS(ERROR_BASE):
     _message = 'This supervisor does not support list plugins: {supervisor_id}'
 
 
-class ERROR_INSTALLED_PLUGIN_EXIST(ERROR_BASE): 
+class ERROR_INSTALLED_PLUGIN_EXIST(ERROR_BASE):
     _message = 'Installed plugins exist, {supervisor_id}'
+
