@@ -27,6 +27,7 @@ class InstalledPlugin(MongoModel):
     endpoints = ListField(StringField(max_length=255))
     created_at = DateTimeField(auto_now_add=True)
     updated_at = DateTimeField(auto_now_add=True)
+    endpoint_called_at = DateTimeField(default=None, null=True)
 
     meta = {
         'db_alias': 'default',
@@ -35,7 +36,8 @@ class InstalledPlugin(MongoModel):
             'updated_at',
             'state',
             'endpoint',
-            'endpoints'
+            'endpoints',
+            'endpoint_called_at'
         ],
         'exact_fields': [
             'plugin_id',
@@ -66,10 +68,15 @@ class InstalledPlugin(MongoModel):
             'name',
             'image',
             'version',
-            'state'
+            'state',
+            'endpoint_called_at'
         ]
     }
 
     def update(self, data):
         data['updated_at'] = datetime.datetime.now()
+        return super().update(data)
+
+    def update_endpoint_called_at(self):
+        data = {'endpoint_called_at': datetime.datetime.now()}
         return super().update(data)
