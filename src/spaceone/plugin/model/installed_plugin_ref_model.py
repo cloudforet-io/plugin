@@ -1,13 +1,12 @@
-# -*- coding: utf-8 -*-
-
-__all__ = ['InstalledPluginRef']
-
 from mongoengine import *
 
 from spaceone.core.model.mongo_model import MongoModel
 #from spaceone.plugin.model.supervisor_ref_model import SupervisorRef
 from spaceone.plugin.model.supervisor_model import Supervisor
 from spaceone.plugin.model.installed_plugin_model import InstalledPlugin
+
+__all__ = ['InstalledPluginRef']
+
 
 class InstalledPluginRef(MongoModel):
     supervisor_id = StringField(max_length=255, required=True)
