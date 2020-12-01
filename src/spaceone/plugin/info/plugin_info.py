@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import functools
 
 from spaceone.api.plugin.v1 import plugin_pb2

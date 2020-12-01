@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-
-__all__ = ['SupervisorRef']
-
 from mongoengine import *
 
 from spaceone.core.model.mongo_model import MongoModel
 from spaceone.plugin.model.supervisor_model import Supervisor
+
+__all__ = ['SupervisorRef']
+
 
 class SupervisorRef(MongoModel):
     domain_id = StringField(max_length=64)

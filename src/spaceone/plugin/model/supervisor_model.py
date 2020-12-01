@@ -1,10 +1,13 @@
-# -*- coding: utf-8 -*-
-
 from mongoengine import *
 
 from spaceone.core.model.mongo_model import MongoModel
 
 __all__ = ['Supervisor']
+
+
+class SupervisorTag(EmbeddedDocument):
+    key = StringField(max_length=255)
+    value = StringField(max_length=255)
 
 
 class Supervisor(MongoModel):
@@ -15,7 +18,7 @@ class Supervisor(MongoModel):
     state = StringField(max_length=40, default='ENABLED', choices=('ENABLED', 'DISABLED', 'PENDING'))
     is_public = BooleanField(default=False)
     labels = DictField()
-    tags = DictField()
+    tags = ListField(EmbeddedDocumentField(SupervisorTag))
     created_at = DateTimeField(auto_now_add=True)
     updated_at = DateTimeField(default=None, null=True)
 
@@ -51,6 +54,7 @@ class Supervisor(MongoModel):
             'domain_id',
             'state',
             'is_public',
-            'labels'
+            'labels',
+            ('tags.key', 'tags.value')
         ]
     }

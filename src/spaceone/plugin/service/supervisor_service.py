@@ -4,7 +4,7 @@ import logging
 
 from spaceone.core.error import *
 from spaceone.core.service import *
-#from spaceone.plugin.model import Supervisor, SupervisorRef
+# from spaceone.plugin.model import Supervisor, SupervisorRef
 from spaceone.plugin.error import *
 from spaceone.plugin.manager.plugin_manager import *
 from spaceone.plugin.manager.supervisor_manager import *
@@ -20,7 +20,7 @@ class SupervisorService(BaseService):
     def __init__(self, metadata):
         super().__init__(metadata)
         self._supervisor_mgr: SupervisorManager = self.locator.get_manager('SupervisorManager')
-        #self._supervisor_ref_mgr: SupervisorRefManager = self.locator.get_manager('SupervisorRefManager')
+        # self._supervisor_ref_mgr: SupervisorRefManager = self.locator.get_manager('SupervisorRefManager')
 
     @transaction
     @check_required(['name', 'hostname', 'domain_id'])
@@ -39,7 +39,8 @@ class SupervisorService(BaseService):
             # East EGG for Automatic Test
             ###############################
             if params['name'] == 'root':
-                self._supervisor_mgr.update({'supervisor_id': supervisor.supervisor_id, 'is_public': True, 'domain_id': domain_id})
+                self._supervisor_mgr.update(
+                    {'supervisor_id': supervisor.supervisor_id, 'is_public': True, 'domain_id': domain_id})
 
         if supervisor:
             plugins_info = params.get('plugin_info', [])
@@ -48,7 +49,7 @@ class SupervisorService(BaseService):
                 # Update State (XXXX -> ACTIVE)
                 # Update endpoint (grpc://xxxx)
                 # There may be no plugin at DB (maybe deleted, or supervisor's garbage)
-                #self._plugin_mgr.update_plugin(plugin)
+                # self._plugin_mgr.update_plugin(plugin)
                 _LOGGER.debug(f'[publish] plugin={plugin}')
                 try:
                     plugin_mgr.update_plugin_state(plugin['plugin_id'],
@@ -70,7 +71,6 @@ class SupervisorService(BaseService):
             # There is no plugin_info
             supervisor = self._supervisor_mgr.create(params)
 
-
         return supervisor
 
     @transaction
@@ -88,10 +88,8 @@ class SupervisorService(BaseService):
         domain_id = params['domain_id']
         _LOGGER.debug(f'[update] params: {params}')
 
-
         # TODO: Should I validate supervisor_id?
         return self._supervisor_mgr.update(params)
-
 
     @transaction
     @check_required(['supervisor_id', 'domain_id'])
@@ -142,7 +140,6 @@ class SupervisorService(BaseService):
         plugin_vo = plugin_mgr.make_reprovision(plugin_id, version)
         return plugin_vo
 
-
     @transaction
     @check_required(['supervisor_id', 'domain_id'])
     def get(self, params):
@@ -160,6 +157,7 @@ class SupervisorService(BaseService):
     @transaction
     @check_required(['domain_id'])
     @append_query_filter(['supervisor_id', 'name', 'is_public', 'hostname', 'domain_id'])
+    @change_tag_filter('tags')
     @append_keyword_filter(['supervisor_id', 'name', 'hostname'])
     def list_supervisors(self, params):
         query = params.get('query', {})
@@ -168,6 +166,7 @@ class SupervisorService(BaseService):
     @transaction
     @check_required(['query', 'domain_id'])
     @append_query_filter(['domain_id'])
+    @append_keyword_filter(['supervisor_id', 'name', 'hostname'])
     def stat(self, params):
         """
         Args:
@@ -213,6 +212,7 @@ class SupervisorService(BaseService):
         except Exception as e:
             _LOGGER.debug(f'[_find_supervisor] not found at supervisor, \
                                 supervisor_id: {supervisor_id}, domain_id: {domain_id}, {e}')
+
 
 def _query_supervisor(supervisor_id, domain_id):
     return {
