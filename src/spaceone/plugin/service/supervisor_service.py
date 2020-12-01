@@ -166,6 +166,7 @@ class SupervisorService(BaseService):
     @transaction
     @check_required(['query', 'domain_id'])
     @append_query_filter(['domain_id'])
+    @change_tag_filter('tags')
     @append_keyword_filter(['supervisor_id', 'name', 'hostname'])
     def stat(self, params):
         """
