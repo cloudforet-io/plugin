@@ -7,17 +7,22 @@ __all__ = ['SupervisorInfo', 'SupervisorsInfo']
 
 
 def SupervisorInfo(supervisor_vo):
-    info = {}
-    info['supervisor_id'] = supervisor_vo.supervisor_id
-    info['name'] = supervisor_vo.name
-    info['hostname'] = supervisor_vo.hostname
-    info['state'] = supervisor_vo.state
-    info['is_public'] = supervisor_vo.is_public
-    info['labels'] = change_struct_type(supervisor_vo.labels)
-    info['tags'] = [tag_pb2.Tag(key=tag.key, value=tag.value) for tag in getattr(supervisor_vo, 'tags', [])],
-    info['created_at'] = change_timestamp_type(supervisor_vo.created_at)
-    info['updated_at'] = change_timestamp_type(supervisor_vo.updated_at)
-    info['domain_id'] = supervisor_vo.domain_id
+    info = {
+        'supervisor_id': supervisor_vo.supervisor_id,
+        'name': supervisor_vo.name,
+        'hostname': supervisor_vo.hostname,
+        'state': supervisor_vo.state,
+        'is_public': supervisor_vo.is_public,
+        'labels': change_struct_type(supervisor_vo.labels),
+        'created_at': change_timestamp_type(supervisor_vo.created_at),
+        'updated_at': change_timestamp_type(supervisor_vo.updated_at),
+        'domain_id': supervisor_vo.domain_id
+    }
+
+    if supervisor_vo.tags:
+        info['tags'] = [tag_pb2.Tag(key=tag.key, value=tag.value) for tag in supervisor_vo.tags]
+    else:
+        print(supervisor_vo.tags)
 
     return supervisor_pb2.SupervisorInfo(**info)
 
