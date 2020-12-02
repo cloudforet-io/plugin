@@ -71,9 +71,6 @@ class SupervisorService(BaseService):
             # There is no plugin_info
             supervisor = self._supervisor_mgr.create(params)
 
-        print(supervisor)
-        print(supervisor.__dict__)
-        print(supervisor.to_dict())
         return supervisor
 
     @transaction
