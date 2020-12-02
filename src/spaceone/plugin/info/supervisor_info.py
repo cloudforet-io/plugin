@@ -21,8 +21,6 @@ def SupervisorInfo(supervisor_vo):
 
     if supervisor_vo.tags:
         info['tags'] = [tag_pb2.Tag(key=tag.key, value=tag.value) for tag in supervisor_vo.tags]
-    else:
-        print(supervisor_vo.tags)
 
     return supervisor_pb2.SupervisorInfo(**info)
 
