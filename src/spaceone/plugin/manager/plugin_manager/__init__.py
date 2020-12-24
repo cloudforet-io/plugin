@@ -22,7 +22,7 @@ __all__ = [
 
 _LOGGER = logging.getLogger(__name__)
 
-WAIT_TIMEOUT = 120
+WAIT_TIMEOUT = 600
 
 
 class PluginManager(BaseManager):
@@ -176,7 +176,7 @@ class PluginManager(BaseManager):
         def _rollback(old_data: dict):
             plugin_vo.update(old_data)
 
-        plugin_vo: InstalledPlugin = self._get_installed_plugin(params['supervisor_id'], params['plugin_id'], params['version'])
+        plugin_vo: InstalledPlugin = self._get_installed_plugin(supervisor_id, plugin_id, version)
         self.transaction.add_rollback(_rollback, plugin_vo.to_dict())
 
         plugin_state_machine = PluginStateMachine(plugin_id, plugin_vo.state)
