@@ -139,7 +139,7 @@ class SupervisorService(BaseService):
 
         # Get endpoint
         endpoint = plugin_vo.endpoint
-        plugin_vo = plugin_mgr.make_reprovision(plugin_id, version)
+        plugin_vo = plugin_mgr.make_reprovision(supervisor_id, plugin_id, version)
         return plugin_vo
 
 

@@ -10,20 +10,30 @@ __all__ = ['PluginInfo', 'PluginsInfo', 'PluginEndpoint']
 
 
 def PluginInfo(plugin_vo: InstalledPluginRef, minimal=False):
-    info = {
-        'plugin_id': plugin_vo.plugin_id,
-        'version': plugin_vo.version,
-        'state': plugin_vo.plugin_owner.state,
-        'endpoint': plugin_vo.plugin_owner.endpoint,
-        'endpoints': change_list_value_type(plugin_vo.plugin_owner.endpoints)
-    }
-    if not minimal:
-        info.update({
-            'supervisor_id': plugin_vo.supervisor.supervisor_id,
-            'supervisor_name': plugin_vo.supervisor.name,
-            'managed': plugin_vo.managed
-        })
+    if isinstance(plugin_vo, InstalledPluginRef):
+        info = {
+            'plugin_id': plugin_vo.plugin_id,
+            'version': plugin_vo.version,
+            'state': plugin_vo.plugin_owner.state,
+            'endpoint': plugin_vo.plugin_owner.endpoint,
+            'endpoints': change_list_value_type(plugin_vo.plugin_owner.endpoints)
+        }
+        if not minimal:
+            info.update({
+                'supervisor_id': plugin_vo.supervisor.supervisor_id,
+                'supervisor_name': plugin_vo.supervisor.name,
+                'managed': plugin_vo.managed
+            })
+    else:
+        # InstalledPlugin
+        info = {
+            'plugin_id': plugin_vo.plugin_id,
+            'version': plugin_vo.version,
+            'state': plugin_vo.state,
+            'supervisor_id': plugin_vo.supervisor_id,
+            'managed': True
 
+        }
     return supervisor_pb2.PluginInfo(**info)
 
 
