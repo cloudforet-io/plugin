@@ -67,8 +67,12 @@ class PluginManager(BaseManager):
     def delete(self, supervisor_id, plugin_id, version, domain_id):
         """ Delete Supervisor
         """
+        # delete plugin_ref first
+        plugin_ref_mgr = self.locator.get_manager('PluginRefManager')
+        plugin_ref_mgr.delete_all(supervisor_id, plugin_id, version)
+
+        # delete myself
         install_plugin = self.get(supervisor_id, domain_id, plugin_id, version)
-        # TODO: delete plugin_ref also
         install_plugin.delete()
 
     def get(self, supervisor_id, domain_id, plugin_id, version):
