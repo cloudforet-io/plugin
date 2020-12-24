@@ -43,8 +43,21 @@ class PluginRefManager(BaseManager):
     def delete(self, supervisor_id, plugin_id, version, domain_id):
         """ Delete Supervisor
         """
-        installed_plugin_ref = self.get(supevisor_id, domain_id, plugin_id, version)
+        installed_plugin_ref = self.get(supervisor_id, domain_id, plugin_id, version)
         installed_plugin_ref.delete()
+
+    def delete_all(self, supervisor_id, plugin_id, version):
+        """ Delete all plugin_refs
+        """
+        query = {'filter': [
+                    {'k': 'supervisor_id', 'v': supervisor_id, 'o': 'eq'},
+                    {'k': 'plugin_id', 'v': plugin_id, 'o': 'eq'},
+                    {'k': 'version', 'v': version, 'o': 'eq'}
+                    ]
+                }
+        (installed_plugin_refs, total_count) = self.list(query)
+        for installed_plugin_ref in installed_plugin_refs:
+            installed_plugin_ref.delete()
 
     def get(self, supervisor_id, domain_id, plugin_id, version):
         """ get installed_plugin
