@@ -6,6 +6,7 @@ from spaceone.core.manager import BaseManager
 from spaceone.plugin.error import *
 
 __all__ = [
+    'PluginStateMachine',
     'PluginState',
     'ProvisioningState',
     'ActiveState',
@@ -78,7 +79,7 @@ class PluginStateMachine:
 
     def __init__(self, plugin_id, state):
         self._plugin_id = plugin_id
-        self._state = _compute_state(state)
+        self._state = STATE_DIC[state]
 
     def activate(self) -> str:
         if isinstance(self._state, (ProvisioningState, ReprovisioningState)):

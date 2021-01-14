@@ -22,7 +22,7 @@ __all__ = [
 
 _LOGGER = logging.getLogger(__name__)
 
-WAIT_TIMEOUT = 120
+WAIT_TIMEOUT = 600
 
 
 class PluginManager(BaseManager):
@@ -67,8 +67,12 @@ class PluginManager(BaseManager):
     def delete(self, supervisor_id, plugin_id, version, domain_id):
         """ Delete Supervisor
         """
+        # delete plugin_ref first
+        plugin_ref_mgr = self.locator.get_manager('PluginRefManager')
+        plugin_ref_mgr.delete_all(supervisor_id, plugin_id, version)
+
+        # delete myself
         install_plugin = self.get(supervisor_id, domain_id, plugin_id, version)
-        # TODO: delete plugin_ref also
         install_plugin.delete()
 
     def get(self, supervisor_id, domain_id, plugin_id, version):
@@ -176,7 +180,7 @@ class PluginManager(BaseManager):
         def _rollback(old_data: dict):
             plugin_vo.update(old_data)
 
-        plugin_vo: InstalledPlugin = self._get_installed_plugin(params['supervisor_id'], params['plugin_id'], params['version'])
+        plugin_vo: InstalledPlugin = self._get_installed_plugin(supervisor_id, plugin_id, version)
         self.transaction.add_rollback(_rollback, plugin_vo.to_dict())
 
         plugin_state_machine = PluginStateMachine(plugin_id, plugin_vo.state)

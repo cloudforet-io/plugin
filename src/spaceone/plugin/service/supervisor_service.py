@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+from datetime import datetime, timedelta
 
 from spaceone.core.error import *
 from spaceone.core.service import *
@@ -8,9 +9,11 @@ from spaceone.core.service import *
 from spaceone.plugin.error import *
 from spaceone.plugin.manager.plugin_manager import *
 from spaceone.plugin.manager.supervisor_manager import *
+from spaceone.plugin.manager.identity_manager import *
 
 _LOGGER = logging.getLogger(__name__)
 
+ELAPSED_DAYS = 2
 
 @authentication_handler
 @authorization_handler
@@ -137,7 +140,7 @@ class SupervisorService(BaseService):
 
         # Get endpoint
         endpoint = plugin_vo.endpoint
-        plugin_vo = plugin_mgr.make_reprovision(plugin_id, version)
+        plugin_vo = plugin_mgr.make_reprovision(supervisor_id, plugin_id, version)
         return plugin_vo
 
     @transaction
@@ -197,6 +200,49 @@ class SupervisorService(BaseService):
         query = params.get('query', {})
         plugin_ref_manager = self.locator.get_manager('PluginRefManager')
         return plugin_ref_manager.list(query)
+
+    @transaction
+    @check_required(['domain_id'])
+    def cleanup_plugins(self, params):
+        """ cleanup unused plugins of domain
+        """
+        domain_id = params['domain_id']
+        # Find plugins of last_get_endpoint
+        now = datetime.utcnow()
+        delta = timedelta(days=ELAPSED_DAYS)
+        diff = now-delta
+        plugin_mgr: PluginManager = self.locator.get_manager('PluginManager')
+        query = {'filter':
+                    [
+                        {'k': 'endpoint_called_at', 'v': diff.isoformat(), 'o': 'datetime_lt'},
+                        {'k': 'domain_id', 'v': domain_id, 'o': 'eq'}
+                    ]
+                }
+        (plugins, total_count) = plugin_mgr.list(query)
+        for plugin in plugins:
+            try:
+                supervisor_id = plugin.supervisor_id
+                plugin_id = plugin.plugin_id
+                version = plugin.version
+                _LOGGER.debug(f'[cleanup_plugins] delete plugin: {supervisor_id}, {plugin_id}, {version}, {domain_id}')
+                plugin_mgr.delete(supervisor_id, plugin_id, version, domain_id)
+            except Exception as e:
+                _LOGGER.error(f'[cleanup_plugins] failed to delete plugin: {plugin}\n{e}')
+
+    @transaction
+    @append_query_filter([])
+    def list_domains(self, params):
+        """ This is used by Scheduler
+        Returns:
+            results (list)
+            total_count (int)
+        """
+        mgr = self.locator.get_manager('IdentityManager')
+        query = params.get('query', {})
+        result = mgr.list_domains(query)
+        return result
+
+
 
     def _get_supervisor_by_id(self, supervisor_id, domain_id):
         """ Find Supervisor with supervisor_id

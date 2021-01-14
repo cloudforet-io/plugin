@@ -43,3 +43,10 @@ ENDPOINTS = {
 
 LOG = {
 }
+
+QUEUES = {}
+SCHEDULERS = {}
+WORKERS = {}
+TOKEN = ""
+TOKEN_INFO = {}
+
