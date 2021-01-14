@@ -38,9 +38,10 @@ class InstalledPlugin(MongoModel):
         ],
         'minimal_fields': [
             'plugin_id',
-            'name',
             'version',
-            'state'
+            'state',
+            'endpoint',
+            'endpoints'
         ],
         'change_query_keys': {
             'hostname': 'supervisor.hostname'
