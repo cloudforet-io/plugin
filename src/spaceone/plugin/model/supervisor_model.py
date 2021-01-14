@@ -14,16 +14,15 @@ class Supervisor(MongoModel):
     supervisor_id = StringField(max_length=40, generate_id='supervisor', unique=True)
     name = StringField(max_length=255)
     hostname = StringField()
-    domain_id = StringField(max_length=64)
     state = StringField(max_length=40, default='ENABLED', choices=('ENABLED', 'DISABLED', 'PENDING'))
     is_public = BooleanField(default=False)
     labels = DictField()
     tags = ListField(EmbeddedDocumentField(SupervisorTag))
+    domain_id = StringField(max_length=64)
     created_at = DateTimeField(auto_now_add=True)
     updated_at = DateTimeField(default=None, null=True)
 
     meta = {
-        'db_alias': 'default',
         'updatable_fields': [
             'name',
             'state',
@@ -32,12 +31,6 @@ class Supervisor(MongoModel):
             'is_public',
             'hostname',
             'labels'
-        ],
-        'exact_fields': [
-            'supervisor_id',
-            'name',
-            'state',
-            'is_public'
         ],
         'minimal_fields': [
             'supervisor_id',
@@ -56,5 +49,6 @@ class Supervisor(MongoModel):
             'is_public',
             'labels',
             ('tags.key', 'tags.value')
-        ]
+        ],
+        'auto_create_index': False
     }
