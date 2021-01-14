@@ -14,14 +14,11 @@ def PluginInfo(plugin_vo: InstalledPluginRef, minimal=False):
         'version': plugin_vo.version,
         'state': plugin_vo.plugin_owner.state,
         'endpoint': plugin_vo.plugin_owner.endpoint,
-        'endpoints': change_list_value_type(plugin_vo.plugin_owner.endpoints)
+        'endpoints': change_list_value_type(plugin_vo.plugin_owner.endpoints),
+        'supervisor_id': plugin_vo.supervisor.supervisor_id,
+        'supervisor_name': plugin_vo.supervisor.name,
+        'managed': plugin_vo.managed
     }
-    if not minimal:
-        info.update({
-            'supervisor_id': plugin_vo.supervisor.supervisor_id,
-            'supervisor_name': plugin_vo.supervisor.name,
-            'managed': plugin_vo.managed
-        })
 
     return supervisor_pb2.PluginInfo(**info)
 

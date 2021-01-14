@@ -10,26 +10,18 @@ __all__ = ['InstalledPluginRef']
 
 class InstalledPluginRef(MongoModel):
     supervisor_id = StringField(max_length=255, required=True)
-    domain_id = StringField(max_length=255, required=True)
     plugin_id = StringField(max_length=255, required=True)
     version = StringField(max_length=255, required=True)
     supervisor = ReferenceField('Supervisor', required=True)
     plugin_owner = ReferenceField('InstalledPlugin', required=True)
     managed = BooleanField()
+    domain_id = StringField(max_length=255, required=True)
 
     meta = {
-        'db_alias': 'default',
         'updatable_fields': [
             'managed'
         ],
-        'exact_fields': [
-            'supervisor_id',
-            'domain_id',
-            'plugin_id',
-            'version'
-        ],
         'minimal_fields': [
-            'domain_id'
             'plugin_id',
             'version'
         ],
@@ -51,6 +43,7 @@ class InstalledPluginRef(MongoModel):
             'plugin_owner',
             'supervisor_id',
             'domain_id'
-        ]
+        ],
+        'auto_create_index': False
     }
 
