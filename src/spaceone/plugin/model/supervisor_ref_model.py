@@ -25,6 +25,5 @@ class SupervisorRef(MongoModel):
         'indexes': [
             'supervisor_id',
             'domain_id'
-        ],
-        'auto_create_index': False
+        ]
     }

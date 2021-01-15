@@ -43,7 +43,6 @@ class InstalledPluginRef(MongoModel):
             'plugin_owner',
             'supervisor_id',
             'domain_id'
-        ],
-        'auto_create_index': False
+        ]
     }
 
