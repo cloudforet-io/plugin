@@ -60,8 +60,7 @@ class InstalledPlugin(MongoModel):
             'version',
             'state',
             'endpoint_called_at'
-        ],
-        'auto_create_index': False
+        ]
     }
 
     def update(self, data):

@@ -49,6 +49,5 @@ class Supervisor(MongoModel):
             'is_public',
             'labels',
             ('tags.key', 'tags.value')
-        ],
-        'auto_create_index': False
+        ]
     }
