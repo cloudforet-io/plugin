@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import logging
 import random
 
@@ -22,7 +20,7 @@ class PluginService(BaseService):
         self.plugin_mgr: PluginManager = self.locator.get_manager('PluginManager')
         self.plugin_ref_mgr: PluginRefManager = self.locator.get_manager('PluginRefManager')
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['plugin_id', 'version', 'domain_id'])
     @append_query_filter(filter_keys=['plugin_id', 'version', 'labels', 'domain_id'])
     def get_plugin_endpoint(self, params: dict):
@@ -66,7 +64,6 @@ class PluginService(BaseService):
             return self._select_endpoint(installed_plugin)
 
         raise ERROR_NO_POSSIBLE_SUPERVISOR(params=params)
-
 
     def _get_installed_plugin(self, supervisor, params):
         """ Get installed plugin at supervisor which is matched with params
@@ -115,7 +112,6 @@ class PluginService(BaseService):
             installed_plugin_ref = self.plugin_ref_mgr.search_plugin(supervisor_id, plugin_id, version, domain_id)
         return installed_plugin_ref
 
-
     def _select_endpoint(self, plugin_ref):
         """ Select one of plugins, then return endpoint
         """
@@ -153,7 +149,8 @@ class PluginService(BaseService):
 
         return {'endpoint': endpoint}
 
-    def _select_one(self, choice_list, algorithm="random"):
+    @staticmethod
+    def _select_one(choice_list, algorithm="random"):
         if algorithm == "random":
             return random.choice(choice_list)
         _LOGGER.error(f'[_select_one] unimplemented algorithm: {algorithm}')
@@ -175,11 +172,9 @@ class PluginService(BaseService):
         except Exception as e:
             raise ERROR_INVALID_PLUGIN_VERSION(plugin_id=plugin_id, version=version)
 
-
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'SYSTEM'})
     @check_required(['plugin_id', 'version', 'supervisor_id', 'domain_id'])
     def notify_failure(self, param: dict):
-
         self.domain_id = param['domain_id']
 
         # since supervisor_id exists, don't need to know domain_id
@@ -192,7 +187,7 @@ class PluginService(BaseService):
 
         return None
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['plugin_id', 'version', 'domain_id'])
     def verify(self, params: dict):
         """ Verify options and secret_data is correct information for specific plugin
