@@ -9,8 +9,9 @@ from spaceone.plugin.manager.supervisor_manager import *
 _LOGGER = logging.getLogger(__name__)
 
 
-@authentication_handler(exclude=['get_plugin_endpoint'])
+@authentication_handler
 @authorization_handler
+@mutation_handler
 @event_handler
 class PluginService(BaseService):
     def __init__(self, metadata):

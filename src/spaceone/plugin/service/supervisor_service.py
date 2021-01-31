@@ -16,6 +16,7 @@ ELAPSED_DAYS = 2
 
 @authentication_handler
 @authorization_handler
+@mutation_handler
 @event_handler
 class SupervisorService(BaseService):
 
