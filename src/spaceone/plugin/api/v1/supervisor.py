@@ -68,7 +68,7 @@ class Supervisor(BaseAPI, supervisor_pb2_grpc.SupervisorServicer):
         params, metadata = self.parse_request(request, context)
 
         with self.locator.get_service('SupervisorService', metadata) as supervisor_svc:
-            supervisors_vo, total_count = supervisor_svc.list_supervisors(params)
+            supervisors_vo, total_count = supervisor_svc.list(params)
             return self.locator.get_info('SupervisorsInfo', supervisors_vo, total_count)
 
     def stat(self, request, context):

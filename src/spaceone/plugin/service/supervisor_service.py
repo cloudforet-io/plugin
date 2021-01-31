@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import logging
 from datetime import datetime, timedelta
 
@@ -15,6 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 ELAPSED_DAYS = 2
 
+
 @authentication_handler
 @authorization_handler
 @event_handler
@@ -25,7 +24,7 @@ class SupervisorService(BaseService):
         self._supervisor_mgr: SupervisorManager = self.locator.get_manager('SupervisorManager')
         # self._supervisor_ref_mgr: SupervisorRefManager = self.locator.get_manager('SupervisorRefManager')
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['name', 'hostname', 'domain_id'])
     def publish(self, params):
         _LOGGER.debug(f'[publish] params: {params}')
@@ -76,7 +75,7 @@ class SupervisorService(BaseService):
 
         return supervisor
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['supervisor_id', 'domain_id'])
     def register(self, params):
         domain_id = params['domain_id']
@@ -85,7 +84,7 @@ class SupervisorService(BaseService):
         # TODO: Should I validate supervisor_id?
         return self._supervisor_mgr.register(params['supervisor_id'], domain_id)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['supervisor_id', 'domain_id'])
     def update(self, params):
         domain_id = params['domain_id']
@@ -94,28 +93,28 @@ class SupervisorService(BaseService):
         # TODO: Should I validate supervisor_id?
         return self._supervisor_mgr.update(params)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['supervisor_id', 'domain_id'])
     def deregister(self, params):
         domain_id = params['domain_id']
         _LOGGER.debug(f'[deregister] supervisor_id: {params["supervisor_id"]}')
         self._supervisor_mgr.delete(params['supervisor_id'], domain_id)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['supervisor_id', 'domain_id'])
     def enable(self, params):
         domain_id = params['domain_id']
         _LOGGER.debug(f'[enable] supervisor_id: {params["supervisor_id"]}')
         return self._supervisor_mgr.enable(params['supervisor_id'], domain_id)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['supervisor_id', 'domain_id'])
     def disable(self, params):
         domain_id = params['domain_id']
         _LOGGER.debug(f'[disable] supervisor_id: {params["supervisor_id"]}')
         return self._supervisor_mgr.disable(params['supervisor_id'], domain_id)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['supervisor_id', 'plugin_id', 'version', 'domain_id'])
     def recover_plugin(self, params):
         """ Recover plugin if exist
@@ -143,7 +142,7 @@ class SupervisorService(BaseService):
         plugin_vo = plugin_mgr.make_reprovision(supervisor_id, plugin_id, version)
         return plugin_vo
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['supervisor_id', 'domain_id'])
     def get(self, params):
         """ Get PluginManager
@@ -157,16 +156,16 @@ class SupervisorService(BaseService):
             PluginManagerData
         """
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['domain_id'])
     @append_query_filter(['supervisor_id', 'name', 'is_public', 'hostname', 'domain_id'])
     @change_tag_filter('tags')
     @append_keyword_filter(['supervisor_id', 'name', 'hostname'])
-    def list_supervisors(self, params):
+    def list(self, params):
         query = params.get('query', {})
         return self._supervisor_mgr.list_supervisors(query)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['query', 'domain_id'])
     @append_query_filter(['domain_id'])
     @change_tag_filter('tags')
@@ -187,7 +186,7 @@ class SupervisorService(BaseService):
         query = params.get('query', {})
         return self._supervisor_mgr.stat_supervisors(query)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['domain_id'])
     @append_query_filter(['domain_id', 'supervisor_id', 'hostname', 'plugin_id', 'version', 'state', 'endpoint'])
     @append_keyword_filter(['supervisor_id', 'hostname', 'plugin_id'])
@@ -201,7 +200,7 @@ class SupervisorService(BaseService):
         plugin_ref_manager = self.locator.get_manager('PluginRefManager')
         return plugin_ref_manager.list(query)
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'SYSTEM'})
     @check_required(['domain_id'])
     def cleanup_plugins(self, params):
         """ cleanup unused plugins of domain
@@ -229,7 +228,7 @@ class SupervisorService(BaseService):
             except Exception as e:
                 _LOGGER.error(f'[cleanup_plugins] failed to delete plugin: {plugin}\n{e}')
 
-    @transaction
+    @transaction(append_meta={'authorization.scope': 'SYSTEM'})
     @append_query_filter([])
     def list_domains(self, params):
         """ This is used by Scheduler
@@ -241,8 +240,6 @@ class SupervisorService(BaseService):
         query = params.get('query', {})
         result = mgr.list_domains(query)
         return result
-
-
 
     def _get_supervisor_by_id(self, supervisor_id, domain_id):
         """ Find Supervisor with supervisor_id
