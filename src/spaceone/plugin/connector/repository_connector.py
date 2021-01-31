@@ -41,7 +41,12 @@ class RepositoryConnector(BaseConnector):
         Returns: PluginInfo
         """
         _LOGGER.debug('[get_plugin] plugin_id:%s' % plugin_id)
-        return self.client.Plugin.get({'plugin_id': plugin_id, 'domain_id': domain_id}, metadata=self.transaction.get_connection_meta())
+
+        # TODO: Domain ID is wrong when creating a new plugin
+        return self.client.Plugin.get({
+            'plugin_id': plugin_id,
+            # 'domain_id': domain_id
+        }, metadata=self.transaction.get_connection_meta())
 
     def get_plugin_versions(self, plugin_id, domain_id):
         response = self.client.Plugin.get_versions({
