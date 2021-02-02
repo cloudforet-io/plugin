@@ -127,7 +127,13 @@ class CleanupScheduler(HourlyScheduler):
             jobs: SpaceONE Pipeline Template
         """
         _LOGGER.debug(f'[_create_job_request] domain: {domain}')
-        metadata = {'token': self.TOKEN, 'domain_id': self.domain_id}
+        metadata = {'token': self.TOKEN,
+                    'service': 'plugin',
+                    'resource': 'Supervisor',
+                    'verb', 'cleanup_plugins',
+                    'authorization': True,
+                    'mutation': True,
+                    'domain_id': self.domain_id}
         sched_job = {
             'locator': 'SERVICE',
             'name': 'SupervisorService',
