@@ -48,8 +48,8 @@ class PluginManager(BaseManager):
         supervisor = params['supervisor']
         params['supervisor_id'] = supervisor.supervisor_id
 
-        repo_connector = self.locator.get_connector('RepositoryConnector')
-        repo_connector.get_plugin(params['plugin_id'], params['domain_id'])
+        # repo_connector = self.locator.get_connector('RepositoryConnector')
+        # repo_connector.get_plugin(params['plugin_id'], params['domain_id'])
 
         plugin = self._installed_plugin_model.create(params)
         self.transaction.add_rollback(_rollback, plugin)

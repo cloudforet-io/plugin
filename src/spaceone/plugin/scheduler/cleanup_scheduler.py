@@ -130,7 +130,7 @@ class CleanupScheduler(HourlyScheduler):
         metadata = {'token': self.TOKEN,
                     'service': 'plugin',
                     'resource': 'Supervisor',
-                    'verb', 'cleanup_plugins',
+                    'verb': 'cleanup_plugins',
                     'authorization': True,
                     'mutation': True,
                     'domain_id': self.domain_id}
