@@ -87,7 +87,13 @@ class CleanupScheduler(HourlyScheduler):
                 # ERROR LOGGING
                 pass
             # Loop all domain, then find schedule
-            metadata = {'token': self.TOKEN, 'domain_id': self.domain_id}
+            metadata = {'token': self.TOKEN,
+                        'service': 'plugin',
+                        'resource': 'Supervisor',
+                        'verb': 'list_domains',
+                        'authorization': True,
+                        'mutation': True,
+                        'domain_id': self.domain_id}
             svc = self.locator.get_service('SupervisorService', metadata)
             params = {}
             resp = svc.list_domains(params)
