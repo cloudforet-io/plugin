@@ -8,8 +8,7 @@ worker: true
 name: plugin
 replicas: 1
 image:
-    repository: spaceone
-    name: plugin
+    name: spaceone/plugin
     version: latest
 imagePullPolicy: IfNotPresent
 
