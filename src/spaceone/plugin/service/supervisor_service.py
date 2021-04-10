@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from spaceone.core.error import *
 from spaceone.core.service import *
+from spaceone.core import utils
 # from spaceone.plugin.model import Supervisor, SupervisorRef
 from spaceone.plugin.error import *
 from spaceone.plugin.manager.plugin_manager import *
@@ -28,6 +29,9 @@ class SupervisorService(BaseService):
     @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['name', 'hostname', 'domain_id'])
     def publish(self, params):
+        if 'tags' in params:
+            params['tags'] = utils.dict_to_tags(params['tags'])
+
         _LOGGER.debug(f'[publish] params: {params}')
         plugin_mgr: PluginManager = self.locator.get_manager('PluginManager')
 
@@ -82,6 +86,9 @@ class SupervisorService(BaseService):
         domain_id = params['domain_id']
         _LOGGER.debug(f'[register] params: {params}')
 
+        if 'tags' in params:
+            params['tags'] = utils.dict_to_tags(params['tags'])
+
         # TODO: Should I validate supervisor_id?
         return self._supervisor_mgr.register(params['supervisor_id'], domain_id)
 
@@ -90,6 +97,9 @@ class SupervisorService(BaseService):
     def update(self, params):
         domain_id = params['domain_id']
         _LOGGER.debug(f'[update] params: {params}')
+
+        if 'tags' in params:
+            params['tags'] = utils.dict_to_tags(params['tags'])
 
         # TODO: Should I validate supervisor_id?
         return self._supervisor_mgr.update(params)
