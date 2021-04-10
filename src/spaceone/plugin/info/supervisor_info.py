@@ -2,6 +2,7 @@ import functools
 from spaceone.api.core.v1 import tag_pb2
 from spaceone.api.plugin.v1 import supervisor_pb2
 from spaceone.core.pygrpc.message_type import *
+from spaceone.core import utils
 
 __all__ = ['SupervisorInfo', 'SupervisorsInfo']
 
@@ -14,13 +15,13 @@ def SupervisorInfo(supervisor_vo):
         'state': supervisor_vo.state,
         'is_public': supervisor_vo.is_public,
         'labels': change_struct_type(supervisor_vo.labels),
-        'created_at': change_timestamp_type(supervisor_vo.created_at),
-        'updated_at': change_timestamp_type(supervisor_vo.updated_at),
+        'created_at': utils.datetime_to_iso8601(supervisor_vo.created_at),
+        'updated_at': utils.datetime_to_iso8601(supervisor_vo.updated_at),
         'domain_id': supervisor_vo.domain_id
     }
 
     if supervisor_vo.tags:
-        info['tags'] = [tag_pb2.Tag(key=tag.key, value=tag.value) for tag in supervisor_vo.tags]
+        info['tags'] = change_struct_type(utils.tags_to_dict(supervisor_vo.tags))
 
     return supervisor_pb2.SupervisorInfo(**info)
 
