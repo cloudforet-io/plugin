@@ -45,10 +45,15 @@ class PluginService(BaseService):
         _LOGGER.debug(f'[get_plugin_endpoint] req_params: {req_params}')
         # TODO: check ACTIVE state
         installed_plugins, total_count = self.plugin_ref_mgr.list(req_params)
-        if total_count > 0:
-            selected_plugin = self._select_one(installed_plugins)
-            _LOGGER.debug(f'[get_plugin_endpoint] selected plugin: {selected_plugin.plugin_owner.endpoint}')
-            return self._select_endpoint(selected_plugin)
+
+        for selected_plugin in installed_plugins:
+            try:
+                # TODO: label match
+                _LOGGER.debug(f'[get_plugin_endpoint] selected plugin: {selected_plugin.plugin_owner.endpoint}')
+                return self._select_endpoint(selected_plugin)
+            except Exception as e:
+                _LOGGER.error(f'[get_plugin_endpoint] delete failed plugin, {selected_plugin}')
+                selected_plugin.delete()
 
         # There is no installed plugin
         # Check plugin_id, version is valid or not
