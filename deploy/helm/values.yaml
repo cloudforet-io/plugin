@@ -2,9 +2,11 @@
 # DEFAULT 
 ###############################
 enabled: true
+grpc: true
 developer: false
 scheduler: true
 worker: true
+grpc: false
 name: plugin
 replicas: 1
 image:
