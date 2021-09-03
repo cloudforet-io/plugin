@@ -185,11 +185,7 @@ class PluginService(BaseService):
 
         # since supervisor_id exists, don't need to know domain_id
 
-        plugin_vo = self.plugin_mgr.mark_failure(
-            supervisor_id=param['supervisor_id'],
-            plugin_id=param['plugin_id'],
-            version=param['version']
-        )
+        # plugin_vo = self.plugin_mgr.mark_failure(param['supervisor_id'], param['plugin_id'], param['version'])
 
         return None
 
