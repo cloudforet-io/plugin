@@ -216,7 +216,7 @@ class PluginManager(BaseManager):
             _LOGGER.debug(f'[wait_until_activated] {count}/{WAIT_TIMEOUT}')
             if count > WAIT_TIMEOUT:
                 _LOGGER.error("[wait_until_activated] Timeout for activate")
-                self.mark_failure(plugin_id, version, supervisor_id)
+                self.mark_failure(supervisor_id, plugin_id, version)
                 raise ERROR_INSTALL_PLUGIN_TIMEOUT(supervisor_id=supervisor_id, plugin_id=plugin_id, version=version)
 
             time.sleep(1)
