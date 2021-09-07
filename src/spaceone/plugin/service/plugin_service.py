@@ -24,7 +24,7 @@ class PluginService(BaseService):
         self.repository_mgr: RepositoryManager = self.locator.get_manager('RepositoryManager')
 
     @transaction(append_meta={'authorization.scope': 'DOMAIN'})
-    @check_required(['plugin_id', 'version', 'domain_id'])
+    @check_required(['plugin_id', 'domain_id'])
     def get_plugin_endpoint(self, params: dict):
         """ Get plugin_endpoint
 
@@ -38,20 +38,27 @@ class PluginService(BaseService):
                 }
         """
         plugin_id = params['plugin_id']
-        version = params['version']
+        version = params.get('version')
         labels = params.get('labels', {})
         upgrade_mode = params.get('upgrade_mode', 'MANUAL')
         self.domain_id = params['domain_id']
         updated_version = None
 
-        # Check for latest plugins when auto-upgrade mode is true
-        if upgrade_mode == 'AUTO':
+        if upgrade_mode == 'MANUAL':
+            if version is None:
+                raise ERROR_REQUIRED_PARAMETER(key='version')
+        else:
+            # Check for latest plugins when auto-upgrade mode is true
             latest_version = self.repository_mgr.get_plugin_latest_version(plugin_id, version)
 
-            if latest_version is not None and latest_version != version:
-                updated_version = latest_version
-                params['version'] = latest_version
-                version = latest_version
+            if latest_version is None:
+                if version is None:
+                    raise ERROR_PLUGIN_IMAGE_NOT_FOUND(plugin_id=plugin_id)
+            else:
+                if latest_version != version:
+                    updated_version = latest_version
+                    params['version'] = latest_version
+                    version = latest_version
 
         # TODO: check ACTIVE state
         installed_plugins = self.plugin_ref_mgr.filter(plugin_id=plugin_id, version=version, domain_id=self.domain_id)
