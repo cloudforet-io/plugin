@@ -49,16 +49,16 @@ class PluginService(BaseService):
                 raise ERROR_REQUIRED_PARAMETER(key='version')
         else:
             # Check for latest plugins when auto-upgrade mode is true
-            latest_version = self.repository_mgr.get_plugin_latest_version(plugin_id, version)
+            latest_version = self.repository_mgr.get_plugin_latest_version(plugin_id, self.domain_id)
 
             if latest_version is None:
                 if version is None:
                     raise ERROR_PLUGIN_IMAGE_NOT_FOUND(plugin_id=plugin_id)
             else:
                 if latest_version != version:
-                    updated_version = latest_version
                     params['version'] = latest_version
                     version = latest_version
+                    updated_version = latest_version
 
         # TODO: check ACTIVE state
         installed_plugins = self.plugin_ref_mgr.filter(plugin_id=plugin_id, version=version, domain_id=self.domain_id)
