@@ -63,17 +63,11 @@ class SupervisorService(BaseService):
                                                    plugin['version'],
                                                    plugin['state'],
                                                    plugin['endpoint'],
+                                                   plugin.get('endpoints', []),
                                                    supervisor.supervisor_id)
                 except Exception as e:
                     _LOGGER.error(f'[publish] e={e}')
                     _LOGGER.warning(f'[publish] Failed update plugin.state:{plugin["state"]}')
-                # Update endpoints, if needed
-                if 'endpoints' in plugin:
-                    _LOGGER.debug(f'[publish] endpoints: {plugin["endpoints"]}')
-                    plugin_mgr.update_plugin_endpoints(plugin['plugin_id'],
-                                                       plugin['version'],
-                                                       supervisor.supervisor_id,
-                                                       plugin['endpoints'])
         else:
             # There is no plugin_info
             supervisor = self._supervisor_mgr.create(params)

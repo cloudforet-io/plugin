@@ -5,6 +5,7 @@ from spaceone.core.service import *
 from spaceone.plugin.error import *
 from spaceone.plugin.manager.plugin_manager import *
 from spaceone.plugin.manager.supervisor_manager import *
+from spaceone.plugin.manager.repository_manager import RepositoryManager
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,10 +21,10 @@ class PluginService(BaseService):
         #self.supervisor_ref_mgr: SupervisorRefManager = self.locator.get_manager('SupervisorRefManager')
         self.plugin_mgr: PluginManager = self.locator.get_manager('PluginManager')
         self.plugin_ref_mgr: PluginRefManager = self.locator.get_manager('PluginRefManager')
+        self.repository_mgr: RepositoryManager = self.locator.get_manager('RepositoryManager')
 
     @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['plugin_id', 'version', 'domain_id'])
-    @append_query_filter(filter_keys=['plugin_id', 'version', 'labels', 'domain_id'])
     def get_plugin_endpoint(self, params: dict):
         """ Get plugin_endpoint
 
@@ -32,25 +33,34 @@ class PluginService(BaseService):
                     'plugin_id': 'str',
                     'version': 'str',
                     'labels': 'dict',
+                    'upgrade_mode': 'str',
                     'domain_id': 'str'
                 }
         """
         plugin_id = params['plugin_id']
         version = params['version']
         labels = params.get('labels', {})
+        upgrade_mode = params.get('upgrade_mode', 'MANUAL')
         self.domain_id = params['domain_id']
+        updated_version = None
 
-        # Find at Plugin Ref Manager
-        req_params = params.get('query', {})
-        _LOGGER.debug(f'[get_plugin_endpoint] req_params: {req_params}')
+        # Check for latest plugins when auto-upgrade mode is true
+        if upgrade_mode == 'AUTO':
+            latest_version = self.repository_mgr.get_plugin_latest_version(plugin_id, version)
+
+            if latest_version is not None and latest_version != version:
+                updated_version = latest_version
+                params['version'] = latest_version
+                version = latest_version
+
         # TODO: check ACTIVE state
-        installed_plugins, total_count = self.plugin_ref_mgr.list(req_params)
+        installed_plugins = self.plugin_ref_mgr.filter(plugin_id=plugin_id, version=version, domain_id=self.domain_id)
 
         for selected_plugin in installed_plugins:
             try:
                 # TODO: label match
                 _LOGGER.debug(f'[get_plugin_endpoint] selected plugin: {selected_plugin.plugin_owner.endpoint}')
-                return self._select_endpoint(selected_plugin)
+                return self._select_endpoint(selected_plugin, updated_version)
             except Exception as e:
                 _LOGGER.error(f'[get_plugin_endpoint] delete failed plugin, {selected_plugin}')
                 selected_plugin.delete()
@@ -67,7 +77,7 @@ class PluginService(BaseService):
             _LOGGER.debug(f'[get_matched_supervisors] selected_supervisor: {selected_supervisor}')
             installed_plugin = self._get_installed_plugin(selected_supervisor, params)
             _LOGGER.debug(f'[get_matched_supervisors] installed_plugin: {installed_plugin}')
-            return self._select_endpoint(installed_plugin)
+            return self._select_endpoint(installed_plugin, updated_version)
 
         raise ERROR_NO_POSSIBLE_SUPERVISOR(params=params)
 
@@ -118,7 +128,7 @@ class PluginService(BaseService):
             installed_plugin_ref = self.plugin_ref_mgr.search_plugin(supervisor_id, plugin_id, version, domain_id)
         return installed_plugin_ref
 
-    def _select_endpoint(self, plugin_ref):
+    def _select_endpoint(self, plugin_ref, updated_version=None):
         """ Select one of plugins, then return endpoint
         """
         installed_plugin = plugin_ref.plugin_owner
@@ -153,7 +163,12 @@ class PluginService(BaseService):
             _LOGGER.debug(f'[_select_endpoint] {endpoints}')
             endpoint = self._select_one(endpoints)
 
-        return {'endpoint': endpoint}
+        endpoint_info = {'endpoint': endpoint}
+
+        if updated_version:
+            endpoint_info['updated_version'] = updated_version
+
+        return endpoint_info
 
     @staticmethod
     def _select_one(choice_list, algorithm="random"):
@@ -230,4 +245,3 @@ class PluginService(BaseService):
         options = params.get('options', {})
 
         return self.plugin_mgr.call_verify_plugin(plugin_endpoint, options, secret_data)
-

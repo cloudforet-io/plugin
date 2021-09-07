@@ -63,10 +63,13 @@ class PluginRefManager(BaseManager):
         """ get installed_plugin
         """
         plugin = self._installed_plugin_ref_model.get(supervisor_id=supervisor_id,
-                                                domain_id=domain_id,
-                                                plugin_id=plugin_id,
-                                                version=version)
+                                                      domain_id=domain_id,
+                                                      plugin_id=plugin_id,
+                                                      version=version)
         return plugin
+
+    def filter(self, **conditions):
+        return self._installed_plugin_ref_model.filter(**conditions)
 
     def list(self, query):
         _LOGGER.debug(f'[list] query: {query}')
