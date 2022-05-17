@@ -1,3 +1,5 @@
+spaceone-core
+spaceone-api
 mongoengine
 redis
 python-consul
