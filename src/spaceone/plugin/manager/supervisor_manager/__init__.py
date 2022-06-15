@@ -54,7 +54,7 @@ class SupervisorManager(BaseManager):
         supervisor = self.get_by_id(supervisor_id, domain_id)
 
         # TODO: Check Installed Plugin(No Cascade)
-        plugin_mgr = self.locator.getManager('PluginManager')
+        plugin_mgr = self.locator.get_manager('PluginManager')
         installed_plugins = plugin_mgr.list_plugins_by_supervisor_id(supervisor_id, domain_id)
         if installed_plugins.total_count > 0:
             raise ERROR_INSTALLED_PLUGIN_EXIST(supervisor_id=supervisor_id)
