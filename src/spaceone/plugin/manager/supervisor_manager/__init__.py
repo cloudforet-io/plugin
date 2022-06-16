@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 import logging
-import random
 
 from spaceone.core.manager import BaseManager
 
@@ -55,8 +52,8 @@ class SupervisorManager(BaseManager):
 
         # TODO: Check Installed Plugin(No Cascade)
         plugin_mgr = self.locator.get_manager('PluginManager')
-        installed_plugins = plugin_mgr.list_plugins_by_supervisor_id(supervisor_id, domain_id)
-        if installed_plugins.total_count > 0:
+        installed_plugin_vos = plugin_mgr.list_plugins_by_supervisor_id(supervisor_id, domain_id)
+        if installed_plugin_vos.count() > 0:
             raise ERROR_INSTALLED_PLUGIN_EXIST(supervisor_id=supervisor_id)
         supervisor.delete()
 
