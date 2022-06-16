@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import logging
 import time
 
@@ -18,7 +16,7 @@ __all__ = [
     'ActiveState',
     'ReprovisioningState',
     'ErrorState'
-    ]
+]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -85,6 +83,9 @@ class PluginManager(BaseManager):
                                                   plugin_id=plugin_id,
                                                   version=version)
         return plugin
+
+    def list_plugins_by_supervisor_id(self, supervisor_id, domain_id):
+        return self._installed_plugin_model.filter(supervisor_id=supervisor_id, domain_id=domain_id)
 
     def list(self, query):
         return self._installed_plugin_model.query(**query)
