@@ -30,7 +30,8 @@ class Supervisor(MongoModel):
             'plugins',
             'is_public',
             'hostname',
-            'labels'
+            'labels',
+            'tags'
         ],
         'minimal_fields': [
             'supervisor_id',
