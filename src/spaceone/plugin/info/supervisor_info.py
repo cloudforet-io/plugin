@@ -20,7 +20,7 @@ def SupervisorInfo(supervisor_vo):
     }
 
     if supervisor_vo.tags:
-        info['tags'] = change_struct_type(utils.tags_to_dict(supervisor_vo.tags))
+        info['tags'] = change_struct_type(supervisor_vo.tags)
 
     return supervisor_pb2.SupervisorInfo(**info)
 

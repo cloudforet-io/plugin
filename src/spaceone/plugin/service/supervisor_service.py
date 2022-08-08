@@ -29,8 +29,6 @@ class SupervisorService(BaseService):
     @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['name', 'hostname', 'domain_id'])
     def publish(self, params):
-        if 'tags' in params:
-            params['tags'] = utils.dict_to_tags(params['tags'])
 
         _LOGGER.debug(f'[publish] params: {params}')
         plugin_mgr: PluginManager = self.locator.get_manager('PluginManager')
@@ -80,9 +78,6 @@ class SupervisorService(BaseService):
         domain_id = params['domain_id']
         _LOGGER.debug(f'[register] params: {params}')
 
-        if 'tags' in params:
-            params['tags'] = utils.dict_to_tags(params['tags'])
-
         # TODO: Should I validate supervisor_id?
         return self._supervisor_mgr.register(params['supervisor_id'], domain_id)
 
@@ -91,9 +86,6 @@ class SupervisorService(BaseService):
     def update(self, params):
         domain_id = params['domain_id']
         _LOGGER.debug(f'[update] params: {params}')
-
-        if 'tags' in params:
-            params['tags'] = utils.dict_to_tags(params['tags'])
 
         # TODO: Should I validate supervisor_id?
         return self._supervisor_mgr.update(params)
@@ -164,7 +156,6 @@ class SupervisorService(BaseService):
     @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['domain_id'])
     @append_query_filter(['supervisor_id', 'name', 'is_public', 'hostname', 'domain_id'])
-    @change_tag_filter('tags')
     @append_keyword_filter(['supervisor_id', 'name', 'hostname'])
     def list(self, params):
         query = params.get('query', {})
@@ -173,7 +164,6 @@ class SupervisorService(BaseService):
     @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['query', 'domain_id'])
     @append_query_filter(['domain_id'])
-    @change_tag_filter('tags')
     @append_keyword_filter(['supervisor_id', 'name', 'hostname'])
     def stat(self, params):
         """
