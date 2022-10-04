@@ -12,7 +12,7 @@ from spaceone.plugin.manager.identity_manager import *
 
 _LOGGER = logging.getLogger(__name__)
 
-ELAPSED_DAYS = 2
+ELAPSED_DAYS = 7
 
 
 @authentication_handler
