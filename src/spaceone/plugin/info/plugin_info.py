@@ -21,7 +21,8 @@ def PluginInfo(plugin_vo: InstalledPluginRef, minimal=False):
             info.update({
                 'supervisor_id': plugin_vo.supervisor.supervisor_id,
                 'supervisor_name': plugin_vo.supervisor.name,
-                'managed': plugin_vo.managed
+                'managed': plugin_vo.managed,
+                'domain_id': plugin_vo.domain_id
             })
     else:
         # InstalledPlugin
@@ -30,7 +31,8 @@ def PluginInfo(plugin_vo: InstalledPluginRef, minimal=False):
             'version': plugin_vo.version,
             'state': plugin_vo.state,
             'supervisor_id': plugin_vo.supervisor_id,
-            'managed': True
+            'managed': True,
+            'domain_id': plugin_vo.domain_id
 
         }
     return supervisor_pb2.PluginInfo(**info)
