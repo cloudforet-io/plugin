@@ -106,13 +106,14 @@ class PluginService(BaseService):
         plugin_id = params['plugin_id']
         version = params['version']
         domain_id = supervisor.domain_id
+        plugin_domain_id = params['domain_id']
         installed_plugin = self.plugin_mgr.search_plugin(supervisor_id, plugin_id, version, domain_id)
         _LOGGER.debug(f'[_get_installed_plugin] {installed_plugin}')
 
         if installed_plugin == None:
             # If not, create it
             _LOGGER.debug(f'[_get_installed_plugin] create new plugin, supervisor_id: {supervisor_id}')
-            installed_plugin = self.plugin_mgr.install_plugin(supervisor, plugin_id, version)
+            installed_plugin = self.plugin_mgr.install_plugin(supervisor, plugin_id, version, plugin_domain_id)
             #print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             #print("XXXXXXXXX wait until activated XXXXXXXXXX")
             #self.plugin_mgr.wait_until_activated(supervisor_id, plugin_id, version)

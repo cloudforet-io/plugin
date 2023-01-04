@@ -22,7 +22,7 @@ def PluginInfo(plugin_vo: InstalledPluginRef, minimal=False):
                 'supervisor_id': plugin_vo.supervisor.supervisor_id,
                 'supervisor_name': plugin_vo.supervisor.name,
                 'managed': plugin_vo.managed,
-                'domain_id': plugin_vo.domain_id
+                'domain_id': plugin_vo.plugin_domain_id if plugin_vo.plugin_domain_id else plugin_vo.domain_id
             })
     else:
         # InstalledPlugin

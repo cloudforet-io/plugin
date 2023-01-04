@@ -35,7 +35,8 @@ class PluginManager(BaseManager):
                     'domain_id' : str,
                     'plugin_id' : str,
                     'version'   : str,
-                    'supervisor': str
+                    'supervisor': str,
+                    'plugin_domain_id': str
                 }
         """
         def _rollback(vo):
@@ -111,7 +112,7 @@ class PluginManager(BaseManager):
     def _get_installed_plugin(self, supervisor_id, plugin_id, version):
         return self._installed_plugin_model.get(plugin_id=plugin_id, version=version, supervisor_id=supervisor_id)
 
-    def install_plugin(self, supervisor, plugin_id, version):
+    def install_plugin(self, supervisor, plugin_id, version, plugin_domain_id):
         """ Install Plugin based on supervisor info
 
         Returns: installed_plugin_vo
@@ -123,7 +124,8 @@ class PluginManager(BaseManager):
             'supervisor': supervisor,
             'plugin_id': plugin_id,
             'version': version,
-            'domain_id': supervisor.domain_id
+            'domain_id': supervisor.domain_id,
+            'plugin_domain_id': plugin_domain_id
         }
         _LOGGER.debug(f'[install_plugin] create_params: {create_params}')
         # check exist first,
