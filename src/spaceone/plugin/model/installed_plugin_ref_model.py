@@ -16,6 +16,7 @@ class InstalledPluginRef(MongoModel):
     plugin_owner = ReferenceField('InstalledPlugin', required=True)
     managed = BooleanField()
     domain_id = StringField(max_length=255, required=True)
+    plugin_domain_id = StringField(max_length=255, default=None, null=True)
 
     meta = {
         'updatable_fields': [
@@ -42,7 +43,8 @@ class InstalledPluginRef(MongoModel):
             'supervisor',
             'plugin_owner',
             'supervisor_id',
-            'domain_id'
+            'domain_id',
+            'plugin_domain_id'
         ]
     }
 
