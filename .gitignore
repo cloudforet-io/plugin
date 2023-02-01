@@ -11,3 +11,4 @@ __pycache__
 venv
 local-conf.yml
 *.pem
+skaffold.yaml
