@@ -72,9 +72,9 @@ class PluginRefManager(BaseManager):
         return self._installed_plugin_ref_model.filter(**conditions)
 
     def list(self, query):
-        _LOGGER.debug(f'[list] query: {query}')
+        # _LOGGER.debug(f'[list] query: {query}')
         result = self._installed_plugin_ref_model.query(**query)
-        _LOGGER.debug(f'[list] query: {result}')
+        # _LOGGER.debug(f'[list] query: {result}')
         return result
 
     #def search_plugin(self, supervisor_id, plugin_id, version, domain_id, state='ACTIVE'):
