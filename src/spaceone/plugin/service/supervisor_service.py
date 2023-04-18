@@ -29,8 +29,7 @@ class SupervisorService(BaseService):
     @transaction(append_meta={'authorization.scope': 'DOMAIN'})
     @check_required(['name', 'hostname', 'domain_id'])
     def publish(self, params):
-
-        _LOGGER.debug(f'[publish] params: {params}')
+        # _LOGGER.debug(f'[publish] params: {params}')
         plugin_mgr: PluginManager = self.locator.get_manager('PluginManager')
 
         domain_id = params['domain_id']
@@ -49,7 +48,7 @@ class SupervisorService(BaseService):
 
         if supervisor:
             plugins_info = params.get('plugin_info', [])
-            print(f'[publish] plugin_info: {plugins_info}')
+            # print(f'[publish] plugin_info: {plugins_info}')
             for plugin in plugins_info:
                 # Update State (XXXX -> ACTIVE)
                 # Update endpoint (grpc://xxxx)
