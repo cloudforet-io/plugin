@@ -4,7 +4,6 @@ from spaceone.core import pygrpc
 from spaceone.core.error import *
 from spaceone.core.connector import BaseConnector
 from spaceone.core.utils import parse_endpoint
-from spaceone.inventory.error import *
 
 _LOGGER = logging.getLogger(__name__)
 
