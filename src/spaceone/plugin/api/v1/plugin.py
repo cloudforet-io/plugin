@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
-
+import logging
 from spaceone.api.plugin.v1 import plugin_pb2, plugin_pb2_grpc
 from spaceone.core.pygrpc import BaseAPI
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Plugin(BaseAPI, plugin_pb2_grpc.PluginServicer):
@@ -37,6 +38,7 @@ class Plugin(BaseAPI, plugin_pb2_grpc.PluginServicer):
 
         with self.locator.get_service('PluginService', metadata) as plugin_svc:
             metadata = plugin_svc.get_plugin_metadata(params)
+            _LOGGER.debug(f'[get_plugin_metadata] {metadata}')
             return self.locator.get_info('PluginMetadata', metadata)
 
     def notify_failure(self, request, context):
