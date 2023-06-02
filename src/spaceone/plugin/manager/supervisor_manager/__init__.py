@@ -116,9 +116,7 @@ class SupervisorManager(BaseManager):
     def get_matched_supervisors(self, domain_id, labels):
         supervisors, total_count = self.get_all_supervisors(domain_id)
         _LOGGER.debug(f'[get_matched_supervisors] possible list before label matching: {supervisors}')
-        matched_supervisors = _get_matched_supervisors(supervisors, labels)
-        _LOGGER.debug(f'[get_matched_supervisor] matched_supervisors: {matched_supervisors}')
-        return matched_supervisors
+        return _get_matched_supervisors(supervisors, labels)
 
 #    def get_public_supervisor(self, labels):
 #        query = _query_public()

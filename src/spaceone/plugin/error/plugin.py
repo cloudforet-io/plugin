@@ -19,3 +19,7 @@ class ERROR_PLUGIN_FAILURE(ERROR_BASE):
 
 class ERROR_PLUGIN_IMAGE_NOT_FOUND(ERROR_BASE):
     _message = 'Plugin image does not exist. (plugin_id = {plugin_id})'
+
+
+class ERROR_PLUGIN_ENDPOINT_NOT_FOUND(ERROR_BASE):
+    _message = 'Plugin endpoint is not existed. (plugin_id = {plugin_id})'

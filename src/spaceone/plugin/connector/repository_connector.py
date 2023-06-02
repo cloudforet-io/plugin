@@ -1,3 +1,6 @@
+"""
+Deprecated
+"""
 import logging
 from google.protobuf.json_format import MessageToDict
 

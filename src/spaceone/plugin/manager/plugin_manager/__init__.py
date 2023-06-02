@@ -1,11 +1,11 @@
 import logging
 import time
 
-from spaceone.core.error import ERROR_NOT_FOUND
 from spaceone.core.manager import BaseManager
 from spaceone.plugin.manager.plugin_manager.plugin_ref_manager import *
 from spaceone.plugin.manager.plugin_manager.plugin_state import *
-from spaceone.plugin.connector.repository_connector import RepositoryConnector
+from spaceone.core.connector.space_connector import SpaceConnector
+from spaceone.plugin.connector.plugin_connector import PluginConnector
 from spaceone.plugin.model import *
 from spaceone.plugin.error import *
 
@@ -91,7 +91,6 @@ class PluginManager(BaseManager):
     def list(self, query):
         return self._installed_plugin_model.query(**query)
 
-    #def search_plugin(self, supervisor_id, plugin_id, version, domain_id, state='ACTIVE'):
     def search_plugin(self, supervisor_id, plugin_id, version, domain_id):
         """ Get installed_plugin
         """
@@ -230,15 +229,21 @@ class PluginManager(BaseManager):
 
         return installed_plugin
 
-    # Verify
     def get_secret_data(self, secret_id, domain_id):
-        connector = self.locator.get_connector('SecretConnector')
-        return connector.get_data(secret_id, domain_id)
+        secret_connector: SpaceConnector = self.locator.get_connector('SpaceConnector', service='secret')
+        return secret_connector.dispatch('Secret.get_data', {'secret_id': secret_id, 'domain_id': domain_id})
 
-    def call_verify_plugin(self, plugin_endpoint, options, secret_data):
+    def init_plugin(self, plugin_endpoint, api_class, options, domain_id):
+        plugin_connector = self.locator.get_connector(PluginConnector)
+        plugin_connector.initialize(plugin_endpoint, api_class)
+        return plugin_connector.init(options, domain_id)
+
+    def verify_plugin(self, plugin_endpoint, api_class, options, secret_data):
         """ Call verify function at endpoint
         """
-        # Issue: CLOUD-941
+        plugin_connector = self.locator.get_connector(PluginConnector)
+        plugin_connector.initialize(plugin_endpoint, api_class)
+        plugin_connector.verify(options, secret_data)
 
     def _safe_delay_get_installed_plugin(self, supervisor_id, plugin_id, version, delay_second=0):
         if 0 < delay_second < 30:
