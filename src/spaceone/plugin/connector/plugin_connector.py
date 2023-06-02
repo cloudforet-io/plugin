@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 import logging
 
-from google.protobuf.json_format import MessageToDict
-
 from spaceone.core import pygrpc
+from spaceone.core.error import *
 from spaceone.core.connector import BaseConnector
 from spaceone.core.utils import parse_endpoint
 from spaceone.inventory.error import *
@@ -16,13 +14,17 @@ class PluginConnector(BaseConnector):
     def __init__(self, transaction, config):
         super().__init__(transaction, config)
         self.client = None
+        self.api_class = None
 
-    def initialize(self, endpoint):
+    def initialize(self, endpoint, api_class):
         if endpoint is None:
             raise ERROR_GRPC_CONFIGURATION
+
+        self.api_class = api_class
         endpoint = endpoint.replace('"', '')
         e = parse_endpoint(endpoint)
         protocol = e['scheme']
+
         if protocol == 'grpc':
             self.client = pygrpc.client(endpoint="%s:%s" % (e['hostname'], e['port']), version='plugin')
         elif protocol == 'http':
@@ -34,13 +36,20 @@ class PluginConnector(BaseConnector):
                           f'(host: {e.get("hostname")}, port: {e.get("port")}, version: plugin)')
             raise ERROR_GRPC_CONFIGURATION
 
+    def init(self, options, domain_id):
+        params = {
+            'options': options,
+            'domain_id': domain_id
+        }
+
+        plugin_client = getattr(self.client, self.api_class)
+        return plugin_client.init(params, domain_id)
+
     def verify(self, options, secret_data):
         params = {
             'options': options,
             'secret_data': secret_data
-            }
-        # TODO: meta (plugin has no meta)
-        meta = []
-        verify_info = self.client.Collector.verify(params, metadata=meta)
-        return verify_info
+        }
+        plugin_client = getattr(self.client, self.api_class)
+        plugin_client.verify(params)
 

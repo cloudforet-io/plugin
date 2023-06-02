@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+"""
+Deprecated
+"""
 import logging
 
 from spaceone.core.connector import BaseConnector
@@ -31,7 +33,6 @@ class SecretConnector(BaseConnector):
     def get_secret_group(self, secret_group_id, domain_id):
         return self.client.SecretGroup.get({'secret_group_id': secret_group_id, 'domain_id': domain_id},
                                     metadata=self.transaction.get_connection_meta())
-
 
     def get_data(self, secret_id, domain_id):
         return self.client.Secret.get_data({'secret_id': secret_id, 'domain_id': domain_id},

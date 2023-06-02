@@ -77,7 +77,6 @@ class PluginRefManager(BaseManager):
         # _LOGGER.debug(f'[list] query: {result}')
         return result
 
-    #def search_plugin(self, supervisor_id, plugin_id, version, domain_id, state='ACTIVE'):
     def search_plugin(self, supervisor_id, plugin_id, version, domain_id):
         """ Get installed_plugin
         """
@@ -94,7 +93,6 @@ class PluginRefManager(BaseManager):
         except Exception as e:
             _LOGGER.debug(f'[search_plugin] not found {supervisor_id}, {plugin_id}, {version}, {domain_id}, {e}')
             return None
-
 
     def install_plugin(self, supervisor, installed_plugin, params):
         """ Install Plugin at PluginRef with supervisor
