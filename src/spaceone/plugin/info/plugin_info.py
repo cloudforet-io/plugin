@@ -46,3 +46,7 @@ def PluginsInfo(plugin_vo: InstalledPluginRef, total_count):
 
 def PluginEndpoint(endpoint):
     return plugin_pb2.PluginEndpoint(**endpoint)
+
+
+def PluginMetadata(metadata):
+    return plugin_pb2.PluginMetadata(**metadata)
