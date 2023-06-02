@@ -58,6 +58,7 @@ class PluginService(BaseService):
         plugin_endpoint_info = self._get_plugin_endpoint(params)
         api_class = self._get_plugin_api_class(plugin_id, domain_id)
         init_response = self.plugin_mgr.init_plugin(plugin_endpoint_info.get('endpoint'), api_class, {}, domain_id)
+        _LOGGER.debug(f'[get_plugin_metadata] init_response: {init_response}')
         return {'metadata': init_response.get('metadata', {})}
 
     def _get_plugin_endpoint(self, params):

@@ -1,3 +1,4 @@
+import logging
 import functools
 
 from spaceone.api.plugin.v1 import plugin_pb2
@@ -6,6 +7,8 @@ from spaceone.plugin.model.installed_plugin_ref_model import InstalledPluginRef
 from spaceone.core.pygrpc.message_type import *
 
 __all__ = ['PluginInfo', 'PluginsInfo', 'PluginEndpoint', 'PluginMetadata']
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def PluginInfo(plugin_vo: InstalledPluginRef, minimal=False):
@@ -33,7 +36,6 @@ def PluginInfo(plugin_vo: InstalledPluginRef, minimal=False):
             'supervisor_id': plugin_vo.supervisor_id,
             'managed': True,
             'domain_id': plugin_vo.domain_id
-
         }
     return supervisor_pb2.PluginInfo(**info)
 
@@ -49,4 +51,8 @@ def PluginEndpoint(endpoint):
 
 
 def PluginMetadata(metadata):
-    return plugin_pb2.PluginMetadata(**metadata)
+    info = {
+        'metadata': change_struct_type(metadata)
+    }
+    _LOGGER.debug(f'[PluginMetadata] {info}')
+    return plugin_pb2.PluginMetadata(**info)
