@@ -1,3 +1,7 @@
+"""
+Deprecated
+"""
+
 import logging
 
 from spaceone.core import pygrpc
