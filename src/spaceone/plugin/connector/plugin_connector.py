@@ -44,7 +44,7 @@ class PluginConnector(BaseConnector):
         plugin_client = getattr(self.client, self.api_class)
         _LOGGER.debug(f'[init] api class: {self.api_class}')
         _LOGGER.debug(f'[init] plugin_client: {plugin_client}')
-        return plugin_client.init(params, domain_id)
+        return getattr(plugin_client, 'init')(params, domain_id)
 
     def verify(self, options, secret_data):
         params = {
