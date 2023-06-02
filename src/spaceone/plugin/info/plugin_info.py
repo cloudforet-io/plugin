@@ -5,7 +5,7 @@ from spaceone.api.plugin.v1 import supervisor_pb2
 from spaceone.plugin.model.installed_plugin_ref_model import InstalledPluginRef
 from spaceone.core.pygrpc.message_type import *
 
-__all__ = ['PluginInfo', 'PluginsInfo', 'PluginEndpoint']
+__all__ = ['PluginInfo', 'PluginsInfo', 'PluginEndpoint', 'PluginMetadata']
 
 
 def PluginInfo(plugin_vo: InstalledPluginRef, minimal=False):
