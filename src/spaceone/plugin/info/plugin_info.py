@@ -54,5 +54,4 @@ def PluginMetadata(metadata):
     info = {
         'metadata': change_struct_type(metadata)
     }
-    _LOGGER.debug(f'[PluginMetadata] {info}')
     return plugin_pb2.PluginMetadata(**info)
