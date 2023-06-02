@@ -234,16 +234,12 @@ class PluginManager(BaseManager):
         return secret_connector.dispatch('Secret.get_data', {'secret_id': secret_id, 'domain_id': domain_id})
 
     def init_plugin(self, plugin_endpoint, api_class, options, domain_id):
-        plugin_connector = self.locator.get_connector(PluginConnector)
-        plugin_connector.initialize(plugin_endpoint, api_class)
-        return plugin_connector.init(options, domain_id)
+        plugin_connector: SpaceConnector = self.locator.get_connector('SpaceConnector', endpoint=plugin_endpoint)
+        return plugin_connector.dispatch(f'{api_class}.init', {'options': options, 'domain_id': domain_id})
 
     def verify_plugin(self, plugin_endpoint, api_class, options, secret_data):
-        """ Call verify function at endpoint
-        """
-        plugin_connector = self.locator.get_connector(PluginConnector)
-        plugin_connector.initialize(plugin_endpoint, api_class)
-        plugin_connector.verify(options, secret_data)
+        plugin_connector: SpaceConnector = self.locator.get_connector('SpaceConnector', endpoint=plugin_endpoint)
+        plugin_connector.dispatch(f'{api_class}.verify', {'options': options, 'secret_data': secret_data})
 
     def _safe_delay_get_installed_plugin(self, supervisor_id, plugin_id, version, delay_second=0):
         if 0 < delay_second < 30:
