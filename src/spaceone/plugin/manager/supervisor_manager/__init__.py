@@ -19,8 +19,8 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class SupervisorManager(BaseManager):
-    def __init__(self, transaction):
-        super().__init__(transaction)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._supervisor_model = self.locator.get_model('Supervisor')
 
     def create(self, params):
