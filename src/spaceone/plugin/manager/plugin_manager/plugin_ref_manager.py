@@ -17,8 +17,8 @@ WAIT_TIMEOUT = 60
 
 
 class PluginRefManager(BaseManager):
-    def __init__(self, transaction):
-        super().__init__(transaction)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._installed_plugin_ref_model: InstalledPluginRef = self.locator.get_model('InstalledPluginRef')
 
     def create(self, params):

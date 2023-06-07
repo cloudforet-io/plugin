@@ -24,8 +24,8 @@ WAIT_TIMEOUT = 150
 
 
 class PluginManager(BaseManager):
-    def __init__(self, transaction):
-        super().__init__(transaction)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._installed_plugin_model: InstalledPlugin = self.locator.get_model('InstalledPlugin')
 
     def create(self, params):
