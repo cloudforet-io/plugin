@@ -30,12 +30,12 @@ class PluginService(BaseService):
 
         Args:
             params(dict) {
-                    'plugin_id': 'str',
-                    'version': 'str',
-                    'labels': 'dict',
-                    'upgrade_mode': 'str',
-                    'domain_id': 'str'
-                }
+                'plugin_id': 'str',
+                'version': 'str',
+                'labels': 'dict',
+                'upgrade_mode': 'str',
+                'domain_id': 'str'
+            }
         """
         params.update({'version': self._get_plugin_version(params)})
         return self._get_plugin_endpoint(params)
@@ -200,7 +200,10 @@ class PluginService(BaseService):
 
         endpoint_info = {'endpoint': endpoint}
 
-        if updated_version:
+        if updated_version and installed_plugin.version != updated_version:
+            _LOGGER.debug(f'[_select_endpoint] version: {installed_plugin.version} | '
+                          f'updated_version: {updated_version}')
+
             endpoint_info['updated_version'] = updated_version
 
         return endpoint_info
