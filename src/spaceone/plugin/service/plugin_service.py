@@ -48,6 +48,7 @@ class PluginService(BaseService):
             params(dict) {
                 'plugin_id': 'str',
                 'version': 'str',
+                'upgrade_mode': 'str',
                 'options': 'dict',
                 'domain_id': 'str'
             }
@@ -55,6 +56,7 @@ class PluginService(BaseService):
         plugin_id = params['plugin_id']
         domain_id = params['domain_id']
 
+        params.update({'version': self._get_plugin_version(params)})
         plugin_endpoint_info = self._get_plugin_endpoint(params)
         api_class = self._get_plugin_api_class(plugin_id, domain_id)
         init_response = self.plugin_mgr.init_plugin(plugin_endpoint_info.get('endpoint'), api_class, {}, domain_id)
@@ -234,7 +236,7 @@ class PluginService(BaseService):
     @transaction(append_meta={'authorization.scope': 'SYSTEM'})
     @check_required(['plugin_id', 'version', 'supervisor_id', 'domain_id'])
     def notify_failure(self, param: dict):
-        self.domain_id = param['domain_id']
+        domain_id = param['domain_id']
 
         # since supervisor_id exists, don't need to know domain_id
         # plugin_vo = self.plugin_mgr.mark_failure(param['supervisor_id'], param['plugin_id'], param['version'])
