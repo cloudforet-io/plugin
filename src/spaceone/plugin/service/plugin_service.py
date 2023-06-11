@@ -37,6 +37,9 @@ class PluginService(BaseService):
                 'domain_id': 'str'
             }
         """
+        if params.get('upgrade_mode') == 'MANUAL' and params.get('version') is None:
+            raise ERROR_REQUIRED_PARAMETER(key='version')
+
         params.update({'version': self._get_plugin_version(params)})
         return self._get_plugin_endpoint(params)
 
@@ -55,6 +58,9 @@ class PluginService(BaseService):
         """
         plugin_id = params['plugin_id']
         domain_id = params['domain_id']
+
+        if params.get('upgrade_mode') == 'MANUAL' and params.get('version') is None:
+            raise ERROR_REQUIRED_PARAMETER(key='version')
 
         params.update({'version': self._get_plugin_version(params)})
         plugin_endpoint_info = self._get_plugin_endpoint(params)
