@@ -208,10 +208,7 @@ class PluginService(BaseService):
 
         endpoint_info = {'endpoint': endpoint}
 
-        if updated_version and installed_plugin.version != updated_version:
-            _LOGGER.debug(f'[_select_endpoint] version: {installed_plugin.version} | '
-                          f'updated_version: {updated_version}')
-
+        if updated_version:
             endpoint_info['updated_version'] = updated_version
 
         return endpoint_info
