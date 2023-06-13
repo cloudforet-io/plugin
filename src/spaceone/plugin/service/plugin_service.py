@@ -44,7 +44,7 @@ class PluginService(BaseService):
         return self._get_plugin_endpoint(params)
 
     @transaction(append_meta={'authorization.scope': 'DOMAIN'})
-    @check_required(['plugin_id', 'version', 'domain_id'])
+    @check_required(['plugin_id', 'domain_id'])
     def get_plugin_metadata(self, params: dict):
         """ Get plugin_metadata
         Args:
