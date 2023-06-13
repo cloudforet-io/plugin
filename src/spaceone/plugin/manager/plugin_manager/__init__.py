@@ -233,9 +233,9 @@ class PluginManager(BaseManager):
         secret_connector: SpaceConnector = self.locator.get_connector('SpaceConnector', service='secret')
         return secret_connector.dispatch('Secret.get_data', {'secret_id': secret_id, 'domain_id': domain_id})
 
-    def init_plugin(self, plugin_endpoint, api_class, options, domain_id):
+    def init_plugin(self, plugin_endpoint, api_class, options):
         plugin_connector: SpaceConnector = self.locator.get_connector('SpaceConnector', endpoint=plugin_endpoint)
-        return plugin_connector.dispatch(f'{api_class}.init', {'options': options, 'domain_id': domain_id})
+        return plugin_connector.dispatch(f'{api_class}.init', {'options': options})
 
     def verify_plugin(self, plugin_endpoint, api_class, options, secret_data):
         plugin_connector: SpaceConnector = self.locator.get_connector('SpaceConnector', endpoint=plugin_endpoint)

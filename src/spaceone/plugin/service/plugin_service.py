@@ -65,7 +65,7 @@ class PluginService(BaseService):
         params.update({'version': self._get_plugin_version(params)})
         plugin_endpoint_info = self._get_plugin_endpoint(params)
         api_class = self._get_plugin_api_class(plugin_id, domain_id)
-        init_response = self.plugin_mgr.init_plugin(plugin_endpoint_info.get('endpoint'), api_class, {}, domain_id)
+        init_response = self.plugin_mgr.init_plugin(plugin_endpoint_info.get('endpoint'), api_class, {})
         return init_response.get('metadata', {})
 
     def _get_plugin_endpoint(self, params):
