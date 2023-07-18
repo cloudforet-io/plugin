@@ -8,7 +8,7 @@ from spaceone.core.locator import Locator
 from spaceone.core.scheduler import HourlyScheduler
 from spaceone.core.auth.jwt.jwt_util import JWTUtil
 
-__all__ = ['StatHourlyScheduler']
+__all__ = ['CleanupScheduler']
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,6 +40,7 @@ def _validate_token(token):
 
             token = value
     return token
+
 
 class CleanupScheduler(HourlyScheduler):
     """ Clean-up unused plugins
@@ -155,6 +156,7 @@ class CleanupScheduler(HourlyScheduler):
                'stages': [sched_job]}
         _LOGGER.debug(f'[_create_job_request] tasks: {stp}')
         return stp
+
 
 class Consul:
     def __init__(self, config):
