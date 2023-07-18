@@ -8,4 +8,5 @@ class IdentityManager(BaseManager):
         self.identity_connector: SpaceConnector = self.locator.get_connector('SpaceConnector', service='identity')
 
     def list_domains(self, query):
-        return self.identity_connector.dispatch('Domain.list', query)
+        print(query)
+        return self.identity_connector.dispatch('Domain.list', {'query': query})
