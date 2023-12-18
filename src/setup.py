@@ -17,21 +17,15 @@ import os
 from setuptools import setup, find_packages
 
 setup(
-    name='spaceone-plugin',
-    version=os.environ.get('PACKAGE_VERSION'),
-    description='SpaceONE plugin service',
-    long_description='',
-    url='https://www.spaceone.dev/',
-    author='MEGAZONE SpaceONE Team',
-    author_email='admin@spaceone.dev',
-    license='Apache License 2.0',
+    name="spaceone-plugin",
+    version=os.environ.get("PACKAGE_VERSION"),
+    description="SpaceONE plugin service",
+    long_description="",
+    url="https://www.spaceone.dev/",
+    author="MEGAZONE SpaceONE Team",
+    author_email="admin@spaceone.dev",
+    license="Apache License 2.0",
     packages=find_packages(),
-    install_requires=[
-        'spaceone-core',
-        'spaceone-api',
-        'mongoengine',
-        'redis',
-        'python-consul'
-    ],
+    install_requires=["spaceone-api"],
     zip_safe=False,
 )
