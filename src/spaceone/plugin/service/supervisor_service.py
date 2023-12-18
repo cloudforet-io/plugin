@@ -12,6 +12,8 @@ ELAPSED_DAYS = 7
 
 @event_handler
 class SupervisorService(BaseService):
+    resource = "Supervisor"
+
     def __init__(self, metadata):
         super().__init__(metadata)
         self._supervisor_mgr: SupervisorManager = self.locator.get_manager(

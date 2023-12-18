@@ -15,6 +15,8 @@ _LOGGER = logging.getLogger(__name__)
 @mutation_handler
 @event_handler
 class PluginService(BaseService):
+    resource = "Plugin"
+    
     def __init__(self, metadata):
         super().__init__(metadata)
         self.supervisor_mgr: SupervisorManager = self.locator.get_manager(
