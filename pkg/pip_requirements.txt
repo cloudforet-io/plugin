@@ -1,4 +1,1 @@
 spaceone-api
-mongoengine
-redis
-python-consul
