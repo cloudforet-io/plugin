@@ -16,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 @event_handler
 class PluginService(BaseService):
     resource = "Plugin"
-    
+
     def __init__(self, metadata):
         super().__init__(metadata)
         self.supervisor_mgr: SupervisorManager = self.locator.get_manager(
@@ -47,8 +47,9 @@ class PluginService(BaseService):
         if params.get("upgrade_mode") == "MANUAL" and params.get("version") is None:
             raise ERROR_REQUIRED_PARAMETER(key="version")
 
-        params.update({"version": self._get_plugin_version(params)})
-        return self._get_plugin_endpoint(params)
+        token = self.transaction.get_meta("token")
+        params.update({"version": self._get_plugin_version(params, token)})
+        return self._get_plugin_endpoint(params, token)
 
     @transaction(
         permission="plugin:Plugin.read", role_types=["DOMAIN_ADMIN", "WORKSPACE_OWNER"]
@@ -68,19 +69,21 @@ class PluginService(BaseService):
         plugin_id = params["plugin_id"]
         domain_id = params["domain_id"]
         options = params.get("options", {})
+        token = self.transaction.get_meta("token")
 
         if params.get("upgrade_mode") == "MANUAL" and params.get("version") is None:
             raise ERROR_REQUIRED_PARAMETER(key="version")
 
-        params.update({"version": self._get_plugin_version(params)})
-        plugin_endpoint_info = self._get_plugin_endpoint(params)
-        api_class = self._get_plugin_api_class(plugin_id, domain_id)
+        params.update({"version": self._get_plugin_version(params, token)})
+
+        plugin_endpoint_info = self._get_plugin_endpoint(params, token)
+        api_class = self._get_plugin_api_class(plugin_id, domain_id, token)
         init_response = self.plugin_mgr.init_plugin(
             plugin_endpoint_info.get("endpoint"), api_class, options
         )
         return init_response.get("metadata", {})
 
-    def _get_plugin_endpoint(self, params):
+    def _get_plugin_endpoint(self, params: dict, token: str):
         plugin_id = params["plugin_id"]
         labels = params.get("labels", {})
         version = params.get("version")
@@ -104,7 +107,7 @@ class PluginService(BaseService):
 
         # There is no installed plugin
         # Check plugin_id, version is valid or not
-        self._check_plugin(plugin_id, version, domain_id)
+        self._check_plugin(plugin_id, version, token)
 
         # Create or Fail
         matched_supervisors = self.supervisor_mgr.get_matched_supervisors(
@@ -122,7 +125,7 @@ class PluginService(BaseService):
 
         raise ERROR_NO_POSSIBLE_SUPERVISOR(params=params)
 
-    def _get_plugin_version(self, params):
+    def _get_plugin_version(self, params: dict, token: str):
         plugin_id = params["plugin_id"]
         upgrade_mode = params.get("upgrade_mode", "MANUAL")
         version = params.get("version")
@@ -130,7 +133,7 @@ class PluginService(BaseService):
 
         if upgrade_mode == "AUTO":
             latest_version = self.repository_mgr.get_plugin_latest_version(
-                plugin_id, domain_id
+                plugin_id, domain_id, token
             )
 
             if version is None and latest_version is None:
@@ -144,8 +147,8 @@ class PluginService(BaseService):
             else:
                 raise ERROR_REQUIRED_PARAMETER(key="version")
 
-    def _get_plugin_api_class(self, plugin_id, domain_id):
-        plugin_info = self.repository_mgr.get_plugin(plugin_id, domain_id)
+    def _get_plugin_api_class(self, plugin_id: str, domain_id: str, token: str):
+        plugin_info = self.repository_mgr.get_plugin(plugin_id, domain_id, token)
         service_type = plugin_info["service_type"]
         return service_type.split(".")[1]
 
@@ -262,19 +265,19 @@ class PluginService(BaseService):
             return random.choice(choice_list)
         _LOGGER.error(f"[_select_one] unimplemented algorithm: {algorithm}")
 
-    def _check_plugin(self, plugin_id, version, domain_id):
+    def _check_plugin(self, plugin_id: str, version: str, token: str):
         """Check plugin_id:version exist or not"""
         repo_mgr = self.locator.get_manager("RepositoryManager")
         # Check plugin_id
         try:
-            repo_mgr.get_plugin(plugin_id, domain_id)
+            repo_mgr.get_plugin(plugin_id, token)
         except Exception as e:
             _LOGGER.error(f"[_check_plugin] {plugin_id} does not exist")
             raise ERROR_PLUGIN_NOT_FOUND(plugin_id=plugin_id)
 
         # Check version
         try:
-            repo_mgr.check_plugin_version(plugin_id, version, domain_id)
+            repo_mgr.check_plugin_version(plugin_id, version, token)
         except Exception as e:
             raise ERROR_INVALID_PLUGIN_VERSION(plugin_id=plugin_id, version=version)
 
@@ -314,8 +317,12 @@ class PluginService(BaseService):
             "domain_id": params["domain_id"],
         }
 
-        plugin_endpoint_info = self._get_plugin_endpoint(requested_params)
-        api_class = self._get_plugin_api_class(params["plugin_id"], params["domain_id"])
+        token = self.transaction.get_meta("token")
+
+        plugin_endpoint_info = self._get_plugin_endpoint(requested_params, token)
+        api_class = self._get_plugin_api_class(
+            params["plugin_id"], params["domain_id"], token
+        )
 
         # secret
         if "secret_id" in params:
