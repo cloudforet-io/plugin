@@ -107,7 +107,7 @@ class PluginService(BaseService):
 
         # There is no installed plugin
         # Check plugin_id, version is valid or not
-        self._check_plugin(plugin_id, version, token)
+        self._check_plugin(plugin_id, domain_id, version, token)
 
         # Create or Fail
         matched_supervisors = self.supervisor_mgr.get_matched_supervisors(
@@ -265,12 +265,12 @@ class PluginService(BaseService):
             return random.choice(choice_list)
         _LOGGER.error(f"[_select_one] unimplemented algorithm: {algorithm}")
 
-    def _check_plugin(self, plugin_id: str, version: str, token: str):
+    def _check_plugin(self, plugin_id: str, domain_id: str, version: str, token: str):
         """Check plugin_id:version exist or not"""
         repo_mgr = self.locator.get_manager("RepositoryManager")
         # Check plugin_id
         try:
-            repo_mgr.get_plugin(plugin_id, token)
+            repo_mgr.get_plugin(plugin_id, domain_id, token)
         except Exception as e:
             _LOGGER.error(f"[_check_plugin] {plugin_id} does not exist")
             raise ERROR_PLUGIN_NOT_FOUND(plugin_id=plugin_id)

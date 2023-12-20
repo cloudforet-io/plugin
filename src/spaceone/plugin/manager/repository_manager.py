@@ -16,7 +16,7 @@ class RepositoryManager(BaseManager):
             SpaceConnector, service="repository"
         )
 
-    def get_plugin(self, plugin_id: str, domain_id, token: str) -> dict:
+    def get_plugin(self, plugin_id: str, domain_id: str, token: str) -> dict:
         return self.repo_connector.dispatch(
             "Plugin.get", {"plugin_id": plugin_id}, token=token, x_domain_id=domain_id
         )
