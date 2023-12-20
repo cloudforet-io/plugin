@@ -2,6 +2,8 @@ import logging
 import random
 
 from spaceone.core.service import *
+from spaceone.core import config
+
 from spaceone.plugin.error import *
 from spaceone.plugin.manager.plugin_manager import *
 from spaceone.plugin.manager.supervisor_manager import *
@@ -47,7 +49,7 @@ class PluginService(BaseService):
         if params.get("upgrade_mode") == "MANUAL" and params.get("version") is None:
             raise ERROR_REQUIRED_PARAMETER(key="version")
 
-        token = self.transaction.get_meta("token")
+        token = config.get_global("TOKEN")
         params.update({"version": self._get_plugin_version(params, token)})
         return self._get_plugin_endpoint(params, token)
 
@@ -93,17 +95,17 @@ class PluginService(BaseService):
             plugin_id=plugin_id, version=version, domain_id=domain_id
         )
 
-        for selected_plugin in installed_plugins:
+        for installed_plugin in installed_plugins:
             try:
                 _LOGGER.debug(
-                    f"[get_plugin_endpoint] selected plugin: {selected_plugin.plugin_owner.endpoint}"
+                    f"[get_plugin_endpoint] selected plugin: {installed_plugin.plugin_owner.endpoint}"
                 )
-                return self._select_endpoint(selected_plugin, version)
+                return self._select_endpoint(installed_plugin, version)
             except Exception as e:
                 _LOGGER.error(
-                    f"[get_plugin_endpoint] delete failed plugin, {selected_plugin}"
+                    f"[get_plugin_endpoint] delete failed plugin, {installed_plugin}"
                 )
-                selected_plugin.delete()
+                installed_plugin.delete()
 
         # There is no installed plugin
         # Check plugin_id, version is valid or not
@@ -149,8 +151,8 @@ class PluginService(BaseService):
 
     def _get_plugin_api_class(self, plugin_id: str, domain_id: str, token: str):
         plugin_info = self.repository_mgr.get_plugin(plugin_id, domain_id, token)
-        service_type = plugin_info["service_type"]
-        return service_type.split(".")[1]
+        resource_type = plugin_info["resource_type"]
+        return resource_type.split(".")[1]
 
     def _get_installed_plugin(self, supervisor, params):
         """Get installed plugin at supervisor which is matched with params
@@ -171,26 +173,26 @@ class PluginService(BaseService):
         version = params["version"]
         domain_id = supervisor.domain_id
         plugin_domain_id = params["domain_id"]
-        installed_plugin = self.plugin_mgr.search_plugin(
+        installed_plugin_vo = self.plugin_mgr.search_plugin(
             supervisor_id, plugin_id, version, domain_id
         )
-        _LOGGER.debug(f"[_get_installed_plugin] {installed_plugin}")
+        _LOGGER.debug(f"[_get_installed_plugin] {installed_plugin_vo}")
 
-        if installed_plugin is None:
+        if installed_plugin_vo is None:
             # If not, create it
             _LOGGER.debug(
                 f"[_get_installed_plugin] create new plugin, supervisor_id: {supervisor_id}"
             )
-            installed_plugin = self.plugin_mgr.install_plugin(
+            installed_plugin_vo = self.plugin_mgr.install_plugin(
                 supervisor, plugin_id, version, plugin_domain_id
             )
 
         installed_plugin_ref = self._get_installed_ref_plugin(
-            supervisor, installed_plugin, params
+            supervisor, installed_plugin_vo, params
         )
         return installed_plugin_ref
 
-    def _get_installed_ref_plugin(self, supervisor, installed_plugin, params):
+    def _get_installed_ref_plugin(self, supervisor, installed_plugin_vo, params):
         supervisor_id = supervisor.supervisor_id
         plugin_id = params["plugin_id"]
         version = params["version"]
@@ -204,7 +206,7 @@ class PluginService(BaseService):
                 f"[_get_installed_ref_plugin] need to create installed_plugin_ref"
             )
             installed_plugin_ref = self.plugin_ref_mgr.install_plugin(
-                supervisor, installed_plugin, params
+                supervisor, installed_plugin_vo, params
             )
             installed_plugin_ref = self.plugin_ref_mgr.search_plugin(
                 supervisor_id, plugin_id, version, domain_id
