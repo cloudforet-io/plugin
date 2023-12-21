@@ -279,7 +279,7 @@ class PluginService(BaseService):
 
         # Check version
         try:
-            repo_mgr.check_plugin_version(plugin_id, version, token)
+            repo_mgr.check_plugin_version(plugin_id, version, token, domain_id)
         except Exception as e:
             raise ERROR_INVALID_PLUGIN_VERSION(plugin_id=plugin_id, version=version)
 

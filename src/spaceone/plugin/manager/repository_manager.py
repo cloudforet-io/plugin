@@ -21,9 +21,14 @@ class RepositoryManager(BaseManager):
             "Plugin.get", {"plugin_id": plugin_id}, token=token, x_domain_id=domain_id
         )
 
-    def check_plugin_version(self, plugin_id, version, token: str) -> None:
+    def check_plugin_version(
+        self, plugin_id: str, version: str, token: str, domain_id: str
+    ) -> None:
         response = self.repo_connector.dispatch(
-            "Plugin.get_versions", {"plugin_id": plugin_id}, token=token
+            "Plugin.get_versions",
+            {"plugin_id": plugin_id},
+            token=token,
+            x_domain_id=domain_id,
         )
 
         if version not in response.get("results", []):
