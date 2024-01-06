@@ -1,6 +1,7 @@
 import logging
 import time
 
+from spaceone.core import config
 from spaceone.core.manager import BaseManager
 from spaceone.plugin.manager.plugin_manager.plugin_ref_manager import *
 from spaceone.plugin.manager.plugin_manager.plugin_state import *
@@ -248,7 +249,7 @@ class PluginManager(BaseManager):
         return installed_plugin
 
     def get_secret_data(self, secret_id, domain_id):
-        system_token = self.transaction.get_meta("token")
+        system_token = config.get_global("TOKEN")
 
         secret_connector: SpaceConnector = self.locator.get_connector(
             "SpaceConnector", service="secret"
