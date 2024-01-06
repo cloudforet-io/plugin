@@ -19,7 +19,6 @@ class SupervisorService(BaseService):
         self._supervisor_mgr: SupervisorManager = self.locator.get_manager(
             "SupervisorManager"
         )
-        # self._supervisor_ref_mgr: SupervisorRefManager = self.locator.get_manager('SupervisorRefManager')
 
     @transaction()
     @check_required(["name", "hostname", "domain_id"])
