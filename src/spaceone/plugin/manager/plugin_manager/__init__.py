@@ -248,11 +248,15 @@ class PluginManager(BaseManager):
         return installed_plugin
 
     def get_secret_data(self, secret_id, domain_id):
+        system_token = self.transaction.get_meta("token")
+
         secret_connector: SpaceConnector = self.locator.get_connector(
             "SpaceConnector", service="secret"
         )
         return secret_connector.dispatch(
-            "Secret.get_data", {"secret_id": secret_id, "domain_id": domain_id}
+            "Secret.get_data",
+            {"secret_id": secret_id, "domain_id": domain_id},
+            token=system_token,
         )
 
     def init_plugin(self, plugin_endpoint, api_class, options):
