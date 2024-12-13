@@ -1,13 +1,12 @@
 import logging
-import random
+import secrets
 
-from spaceone.core.service import *
 from spaceone.core import config
-
+from spaceone.core.service import *
 from spaceone.plugin.error import *
 from spaceone.plugin.manager.plugin_manager import *
-from spaceone.plugin.manager.supervisor_manager import *
 from spaceone.plugin.manager.repository_manager import RepositoryManager
+from spaceone.plugin.manager.supervisor_manager import *
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -264,7 +263,7 @@ class PluginService(BaseService):
     @staticmethod
     def _select_one(choice_list, algorithm="random"):
         if algorithm == "random":
-            return random.choice(choice_list)
+            return secrets.choice(choice_list)
         _LOGGER.error(f"[_select_one] unimplemented algorithm: {algorithm}")
 
     def _check_plugin(self, plugin_id: str, domain_id: str, version: str, token: str):
