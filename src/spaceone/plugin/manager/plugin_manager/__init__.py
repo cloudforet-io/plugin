@@ -193,9 +193,19 @@ class PluginManager(BaseManager):
         if len(endpoints) == 0:
             endpoints = [endpoint]
 
-        return plugin_vo.update(
-            {"state": state, "endpoint": endpoint, "endpoints": endpoints}
-        )
+        endpoints = sorted(endpoints)
+
+        if plugin_vo.endpoints != endpoints:
+            return plugin_vo.update(
+                {
+                    "state": state,
+                    "endpoint": endpoint,
+                    "endpoints": endpoints,
+                    "current_index": 0,
+                }
+            )
+        else:
+            return plugin_vo.update({"state": state, "endpoint": endpoint})
 
     def make_reprovision(self, supervisor_id, plugin_id, version):
         def _rollback(old_data: dict):

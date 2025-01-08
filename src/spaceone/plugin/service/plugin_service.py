@@ -251,7 +251,14 @@ class PluginService(BaseService):
         endpoints = installed_plugin.endpoints
         if endpoints:
             _LOGGER.debug(f"[_select_endpoint] {endpoints}")
-            endpoint = self._select_one(endpoints)
+            # endpoint = self._select_one(endpoints)
+
+            installed_plugin = installed_plugin.increment("current_index")
+
+            if installed_plugin.current_index >= len(endpoints):
+                installed_plugin = installed_plugin.update({"current_index": 0})
+
+            endpoint = endpoints[installed_plugin.current_index]
 
         endpoint_info = {"endpoint": endpoint}
 
