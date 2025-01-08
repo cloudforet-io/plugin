@@ -7,7 +7,7 @@ from spaceone.plugin.manager.supervisor_manager import *
 
 _LOGGER = logging.getLogger(__name__)
 
-ELAPSED_DAYS = 2
+ELAPSED_DAYS = 3
 
 
 @event_handler
