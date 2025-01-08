@@ -250,7 +250,6 @@ class PluginService(BaseService):
         endpoint = installed_plugin.endpoint
         endpoints = installed_plugin.endpoints
         if endpoints:
-            _LOGGER.debug(f"[_select_endpoint] {endpoints}")
             # endpoint = self._select_one(endpoints)
 
             installed_plugin = installed_plugin.increment("current_index")
@@ -258,12 +257,19 @@ class PluginService(BaseService):
             if installed_plugin.current_index >= len(endpoints):
                 installed_plugin = installed_plugin.update({"current_index": 0})
 
+            current_index = installed_plugin.current_index
+            _LOGGER.debug(
+                f"[_select_endpoint] select endpoint. (index = {current_index}, endpoints = {endpoints})"
+            )
+
             endpoint = endpoints[installed_plugin.current_index]
 
         endpoint_info = {"endpoint": endpoint}
 
         if updated_version:
             endpoint_info["updated_version"] = updated_version
+
+        _LOGGER.debug(f"[_select_endpoint] endpoint info: {endpoint_info}")
 
         return endpoint_info
 
