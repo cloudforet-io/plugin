@@ -256,8 +256,10 @@ class PluginService(BaseService):
 
             if installed_plugin.current_index >= len(endpoints):
                 installed_plugin = installed_plugin.update({"current_index": 0})
+                current_index = 0
+            else:
+                current_index = installed_plugin.current_index
 
-            current_index = installed_plugin.current_index
             _LOGGER.debug(
                 f"[_select_endpoint] select endpoint. (index = {current_index}, endpoints = {endpoints})"
             )
