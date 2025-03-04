@@ -34,7 +34,7 @@ class RepositoryManager(BaseManager):
         if version not in response.get("results", []):
             raise ERROR_INVALID_PLUGIN_VERSION(plugin_id=plugin_id, version=version)
 
-    @cacheable(key="plugin-latest-version:{domain_id}:{plugin_id}", expire=600)
+    @cacheable(key="plugin-latest-version:{domain_id}:{plugin_id}", expire=300)
     def get_plugin_latest_version(
         self, plugin_id: str, domain_id: str, token: str
     ) -> Union[str, None]:
