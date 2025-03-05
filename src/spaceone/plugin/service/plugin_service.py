@@ -264,9 +264,23 @@ class PluginService(BaseService):
                 f"[_select_endpoint] select endpoint. (index = {current_index}, endpoints = {endpoints})"
             )
 
-            endpoint = self._get_current_index_endpoint(
-                endpoints, installed_plugin.current_index, installed_plugin.plugin_id
-            )
+            try:
+                endpoint = endpoints[current_index]
+            except IndexError:
+                _LOGGER.debug(
+                    f"[_get_current_index_endpoint] Index Error plugin_id: {installed_plugin.plugin_id},"
+                    f" current_index: {current_index}, endpoints: {endpoints}"
+                )
+                return endpoints[0]
+            except Exception as e:
+                _LOGGER.error(
+                    f"[_get_current_index_endpoint] plugin_id: {installed_plugin.plugin_id}, endpoints: {endpoints}, "
+                    f" installed plugin index {installed_plugin.current_index}, current_index: {current_index},"
+                    f" error: {e}"
+                )
+                raise ERROR_PLUGIN_ENDPOINT_NOT_FOUND(
+                    plugin_id=installed_plugin.plugin_id
+                )
 
         endpoint_info = {"endpoint": endpoint}
 
@@ -359,21 +373,3 @@ class PluginService(BaseService):
         self.plugin_mgr.verify_plugin(
             plugin_endpoint_info.get("endpoint"), api_class, options, secret_data
         )
-
-    @staticmethod
-    def _get_current_index_endpoint(
-        endpoints: list, current_index: int, plugin_id: str
-    ) -> str:
-        try:
-            return endpoints[current_index]
-        except IndexError:
-            randon_index = secrets.randbelow(len(endpoints))
-            _LOGGER.debug(
-                f"[_get_current_index_endpoint] current_index: {current_index}, randon_index: {randon_index}"
-            )
-            return endpoints[randon_index]
-        except Exception as e:
-            _LOGGER.error(
-                f"[_get_current_index_endpoint] plugin_id: {plugin_id}, endpoints: {endpoints}, current_index: {current_index}, error: {e}"
-            )
-            raise ERROR_PLUGIN_ENDPOINT_NOT_FOUND(plugin_id=plugin_id)
