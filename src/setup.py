@@ -17,7 +17,7 @@ import os
 from setuptools import setup, find_packages
 
 setup(
-    name="spaceone-plugin",
+    name="spaceone_plugin",
     version=os.environ.get("PACKAGE_VERSION"),
     description="SpaceONE plugin service",
     long_description="",
